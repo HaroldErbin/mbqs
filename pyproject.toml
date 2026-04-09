@@ -1,0 +1,84 @@
+[project]
+
+name = "mbqs"
+version = "0.1.0"
+description = "Many-body quantum score."
+readme = "README.md"
+requires-python = "~=3.12.0"
+license = "EUPL-1.2"
+license-files = ["LICEN[CS]E*"]
+
+authors = [
+    { name = "Harold Erbin", email = "harold.erbin@gmail.com" },
+    { name = "Grégoire Misguich", email = "gregoire.misguich@ipht.fr" },
+]
+
+keywords = [
+    "quantum computing application benchmark",
+    "many-body physics",
+    "quantum spin models",
+    "quantum simulations",
+]
+
+dependencies = []
+
+
+[project.urls]
+
+Homepage = "https://github.com/HaroldErbin/MBQS"
+
+
+[build-system]
+
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+
+[tool.ruff]
+
+target-version = "py312"
+line-length = 88
+exclude = [".git", ".venv", "__pycache__", "build", "dist"]
+
+
+[tool.ruff.lint]
+
+select = ["E", "F", "I", "B", "UP", "SIM"]
+ignore = ["E501"]
+fixable = ["ALL"]
+
+
+[tool.ruff.format]
+
+quote-style = "double"
+indent-style = "space"
+
+
+[tool.ruff.lint.per-file-ignores]
+
+# authorize assertion and * import in tests
+"tests/*" = ["S101", "F403"]
+
+
+[project.optional-dependencies]
+
+dev = [
+    "ipykernel",
+    "mypy",
+    "pip",
+    "pre-commit",
+    "pytest",
+    "pytest-cov",
+    "ruff~=0.15.3",
+]
+
+
+[tool.pytest.ini_options]
+
+addopts = "--cov=mbqs"
+pythonpath = "src/mbqs"
+
+
+[tool.coverage.run]
+
+omit = ["tests/*"]
