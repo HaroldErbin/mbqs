@@ -28,6 +28,11 @@ dependencies = ["numpy"]
 Homepage = "https://github.com/HaroldErbin/MBQS"
 
 
+[project.scripts]
+
+mbqs = "mbqs.main:main"
+
+
 [build-system]
 
 requires = ["hatchling"]
