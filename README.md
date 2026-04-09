@@ -4,24 +4,24 @@ This packages provides a set of tools to compute the Many-Body Quantum Score (MB
 
 The MBQS metric is parametrized by an initial state $\psi$ and computed according to the following protocol:
 
-1.  Setup a spin chain with $L$ spin-$\frac{1}{2}$ equally spaced on a $1d$ ring.
-2.  Initialize the register with the state $\ket{\psi}$.
-3.  Evolve the system (quench) with the Ising Hamiltonian at the critical point $g = 1$ for a duration $t_*(L)$ (“surge time”).
-4.  Perform measurements $\{ \sigma^z_i \}$ and compute the connected 2-point functions:
+1. Setup a spin chain with $L$ spin-$\frac{1}{2}$ equally spaced on a $1d$ ring.
+2. Initialize the register with the state $\ket{\psi}$.
+3. Evolve the system (quench) with the Ising Hamiltonian at the critical point $g = 1$ for a duration $t_*(L)$ (“surge time”).
+4. Perform measurements $\{ \sigma^z_i \}$ and compute the connected 2-point functions:
 
-    $$
-    g^{(2)}_\ell(t)
-        := \Braket{\sigma^z_1 \sigma^z_\ell}_c
-        := \Braket{\sigma^z_1 \sigma^z_\ell} - \Braket{\sigma^z_1} \Braket{\sigma^z_\ell}.
-    $$
+  $$
+  g^{(2)}_\ell(t)
+      := \Braket{\sigma^z_1 \sigma^z_\ell}_c
+      := \Braket{\sigma^z_1 \sigma^z_\ell} - \Braket{\sigma^z_1} \Braket{\sigma^z_\ell}.
+  $$
 
 5.  Compute the metric (average relative error with respect to the theoretical values in Ising model):
 
-    $$
-    P_2(L)
-        := \frac{1}{\lfloor L/2 \rfloor - 1} \sum_{\ell = 2}^{\lfloor L/2 \rfloor}
-            \left |\frac{g^{(2) \text{exp}}_\ell(t_*) - g^{(2) \text{th}}_\ell(t_*)}{g^{(2) \text{th}}_\ell(t_*)}\right |.
-    $$
+  $$
+  P_2(L)
+      := \frac{1}{\lfloor L/2 \rfloor - 1} \sum_{\ell = 2}^{\lfloor L/2 \rfloor}
+          \left| \frac{g^{(2) \text{th}}_{\ell}(t_\ast) - g^{(2) \text{exp}}_{\ell}(t_\ast)}{g^{(2) \text{th}}_{\ell}(t_\ast)} \right|.
+  $$
 
 The MBQS score S with the initial state $\psi$ corresponds to the largest problem size $L$ reached before failing the test with a threshold $\epsilon$, but excluding system sizes below some cut-off:
 
@@ -57,5 +57,3 @@ Before performing a commit, ensure that the following returns no error or warnin
 make check
 make test
 ```
-
-
