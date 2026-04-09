@@ -40,3 +40,22 @@ In this package, we provide the evaluation for the folloling initial states:
 
 - $\ket{+ \cdots +}$
 - $\ket{\downarrow \cdots \downarrow}$
+
+
+## Contributing
+
+To install all the dependencies including the development tools, run:
+
+```bash
+uv venv
+make install-dev
+```
+
+Before performing a commit, ensure that the following returns no error or warning:
+
+```bash
+make check
+make test
+```
+
+

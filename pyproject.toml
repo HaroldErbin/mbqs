@@ -20,7 +20,7 @@ keywords = [
     "quantum simulations",
 ]
 
-dependencies = []
+dependencies = ["numpy"]
 
 
 [project.urls]
@@ -41,23 +41,23 @@ line-length = 88
 exclude = [".git", ".venv", "__pycache__", "build", "dist"]
 
 
-[tool.ruff.lint]
-
-select = ["E", "F", "I", "B", "UP", "SIM"]
-ignore = ["E501"]
-fixable = ["ALL"]
-
-
 [tool.ruff.format]
 
 quote-style = "double"
 indent-style = "space"
 
 
+[tool.ruff.lint]
+
+select = ["E", "F", "I", "D", "B", "UP", "SIM"]
+ignore = ["E501", "D200", "D202", "D203", "D212"]
+fixable = ["ALL"]
+
+
 [tool.ruff.lint.per-file-ignores]
 
 # authorize assertion and * import in tests
-"tests/*" = ["S101", "F403"]
+"tests/*" = ["D", "S101", "F403"]
 
 
 [project.optional-dependencies]
@@ -82,3 +82,19 @@ pythonpath = "src/mbqs"
 [tool.coverage.run]
 
 omit = ["tests/*"]
+
+
+[tool.mypy]
+
+python_version = "3.12"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+check_untyped_defs = true
+ignore_missing_imports = false
+
+
+[[tool.mypy.overrides]]
+
+module = "numpy.*"
+ignore_missing_imports = true

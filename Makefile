@@ -4,7 +4,12 @@ install-dev:
 
 check:
 	ruff check .
-	ruff format --format .
+
+	@echo ""
+	ruff format --check .
+
+	@echo ""
+	mypy src/mbqs
 
 format:
 	ruff check --fix .
