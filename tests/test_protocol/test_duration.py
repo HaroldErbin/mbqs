@@ -3,6 +3,7 @@ import pytest
 
 from mbqs.protocol.duration import Duration
 
+# J for a = 7.5
 J_75 = 1.2160498936625515
 
 

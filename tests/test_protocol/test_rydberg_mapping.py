@@ -3,6 +3,9 @@ import pytest
 
 from mbqs.protocol.rydberg_mapping import RydbergMapping
 
+# J for a = 7.5
+J_75 = 1.2160498936625515
+
 
 @pytest.mark.parametrize(
     ("L", "J", "a", "level"),
@@ -35,8 +38,8 @@ def test_rydberg_mapping_errors(L, J, a):
         RydbergMapping(L, J=J, a=a)
 
 
-def test_rydberg_mapping_properties():
-    mapping = RydbergMapping(L=6, J=1.2160498936625515, level=60)
+def test_rydberg_mapping_properties_a():
+    mapping = RydbergMapping(L=6, J=J_75, level=60)
     assert np.isclose(mapping.a, 7.5)
 
 
@@ -46,19 +49,19 @@ def test_rydberg_mapping_properties_j():
 
 
 def test_rydberg_mapping_properties_omega():
-    mapping = RydbergMapping(L=6, J=1.2160498936625515, level=60)
+    mapping = RydbergMapping(L=6, J=J_75, level=60)
     assert np.isclose(mapping.Omega, 2.432099787325103)
 
 
 def test_rydberg_mapping_properties_delta():
-    mapping = RydbergMapping(L=6, J=1.2160498936625515, level=60)
+    mapping = RydbergMapping(L=6, J=J_75, level=60)
     assert np.isclose(mapping.delta, 5.082356725289227)
 
 
 @pytest.mark.parametrize(
     ("J", "level", "expected_a"),
     [
-        (1.2160498936625515, 60, 7.5),
+        (J_75, 60, 7.5),
         (0.0, 60, np.inf),
     ],
 )
@@ -81,7 +84,7 @@ def test_compute_J(a, level, expected_J):
     ("J", "expected_omega"),
     [
         (1.0, 2.0),
-        (1.2160498936625515, 2.432099787325103),
+        (J_75, 2.432099787325103),
     ],
 )
 def test_compute_omega(J, expected_omega):
@@ -91,7 +94,7 @@ def test_compute_omega(J, expected_omega):
 @pytest.mark.parametrize(
     ("L", "J", "level", "expected_delta"),
     [
-        (6, 1.2160498936625515, 60, 5.082356725289227),
+        (6, J_75, 60, 5.082356725289227),
     ],
 )
 def test_compute_delta(L, J, level, expected_delta):
@@ -101,7 +104,7 @@ def test_compute_delta(L, J, level, expected_delta):
 @pytest.mark.parametrize(
     ("L", "J", "level", "expected_hz"),
     [
-        (6, 1.2160498936625515, 60, 2.089699095315064),
+        (6, J_75, 60, 2.089699095315064),
     ],
 )
 def test_compute_hz(L, J, level, expected_hz):
