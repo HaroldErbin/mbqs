@@ -4,7 +4,11 @@ Data definining a protocol.
 
 from collections.abc import Mapping
 
-from mbqs.types import QubitPairSeq, SystemSize, SystemSizeSeq
+from mbqs.types import QubitPairSeq, SystemSize
+
+from .duration import Duration
+from .lattice import get_2pt_idx
+from .state import State
 
 
 class MBQSProtocol:
@@ -15,7 +19,8 @@ class MBQSProtocol:
     def __init__(
         self,
         state: str,
-        L: SystemSize | SystemSizeSeq,
+        L: SystemSize,
+        J: float,
     ):
         """
         Initialize the MBQS protocol.
@@ -23,14 +28,16 @@ class MBQSProtocol:
         Args:
             state: State of the system.
             L: System size or sequence of system sizes.
+            J: Ising coupling.
 
         """
 
-        self.state = state
+        self.state = State(state)
         self.L = L
+        self.J = J
 
     @property
-    def corr_idx(self) -> QubitPairSeq | Mapping[int, QubitPairSeq]:
+    def corr_idx(self) -> QubitPairSeq:
         """
         Get the correlation indices for a given system size.
 
@@ -42,10 +49,10 @@ class MBQSProtocol:
 
         """
 
-        return [(0, 1)]
+        return get_2pt_idx(self.L)
 
     @property
-    def surge_time(self) -> float | Mapping[int, float]:
+    def surge_time(self) -> float:
         """
         Compute the surge time for a given system size.
 
@@ -57,15 +64,22 @@ class MBQSProtocol:
 
         """
 
-        return 0.0
+        return Duration(L=self.L, J=self.J, state=self.state).surge_time
 
-    def summary(self) -> dict:
+    @property
+    def summary(self) -> Mapping:
         """
         Get a summary of the protocol.
 
         Returns:
-            dict: Summary of the protocol.
+            Mapping: Summary of the protocol.
 
         """
 
-        return {}
+        return {
+            "state": self.state,
+            "L": self.L,
+            "J": self.J,
+            "time": self.surge_time,
+            "corr_idx": self.corr_idx,
+        }
