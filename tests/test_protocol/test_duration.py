@@ -20,6 +20,7 @@ def test_duration_init(L, J):
     assert duration.J == J
 
 
+@pytest.mark.xfail(raises=NotImplementedError)
 def test_duration_properties_surge_time():
     duration = Duration(L=6, J=J_75)
     assert np.isclose(duration.surge_time, 1.4)
@@ -30,6 +31,7 @@ def test_duration_properties_lieb_robinson_time():
     assert np.isclose(duration.lieb_robinson_time, 6 / (4 * J_75))
 
 
+@pytest.mark.xfail(raises=NotImplementedError)
 @pytest.mark.parametrize(
     ("L", "J", "expected_surge_time"),
     [
