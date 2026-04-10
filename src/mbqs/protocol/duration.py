@@ -61,6 +61,8 @@ class Duration:
         Compute the surge time.
         """
 
+        raise NotImplementedError
+
         return 0.0
 
     @staticmethod
@@ -69,4 +71,7 @@ class Duration:
         Approximation of the surge time using the Lieb-Robinson velocity.
         """
 
-        return 0.0
+        velocity = 2 * J
+        distance = L / 2
+
+        return distance / velocity
