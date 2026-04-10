@@ -13,7 +13,7 @@ The surge time can be approximated using the Lieb-Robinson velocity
 $v_{\text{LR}}$:
 
 $$
-t_* \approx \frac{L}{v_{\text{LR}}}
+t_* \approx \frac{L}{2 * v_{\text{LR}}}
 $$
 
 This can be used to provide a window where to restrict the time evolution for
