@@ -6,6 +6,9 @@ import argparse
 
 ARGS_DEFAULT = {
     "verbose": False,
+    "state": "down",
+    "include_rydberg": False,
+    "level": 60,
 }
 
 
@@ -52,6 +55,81 @@ def protocol_arg_parser(subparsers, parents):
         parents=parents + [arg_parser],
     )
 
+    parser.add_argument(
+        "--state",
+        type=str,
+        choices=["down", "plus"],
+        default=ARGS_DEFAULT["state"],
+        help=f"""
+        Initial state for the protocol.
+        Default: {ARGS_DEFAULT["state"]}
+        """,
+    )
+
+    group = parser.add_mutually_exclusive_group(required=True)
+
+    group.add_argument(
+        "-J",
+        type=float,
+        default=None,
+        help="""
+        Ising coupling.
+        Default: None.
+        """,
+    )
+
+    group.add_argument(
+        "-a",
+        metavar="a",
+        type=float,
+        default=None,
+        help="""
+        Interatomic distance.
+        Default: None.
+        """,
+    )
+
+    parser.add_argument(
+        "--level",
+        type=int,
+        default=None,
+        help=f"""
+        Rydberg level.
+        Default: {ARGS_DEFAULT["level"]}
+        """,
+    )
+
+    parser.add_argument(
+        "--include-rydberg",
+        action="store_true",
+        default=ARGS_DEFAULT["include_rydberg"],
+        help=f"""
+        Include Rydberg parameters in the output.
+        Default: {ARGS_DEFAULT["include_rydberg"]}
+        """,
+    )
+
+    parser.add_argument(
+        "-L",
+        type=int,
+        nargs="+",
+        required=True,
+        help="""
+        System size(s): number(s) of qubits.
+        Can be a single number or a list.
+        """,
+    )
+
+    parser.add_argument(
+        "--json",
+        type=str,
+        default=None,
+        help="""
+        Output the protocol as a JSON file. In this case, the protocol is not printed
+        to the console except if verbose is true.
+        """,
+    )
+
     return parser
 
 
@@ -61,6 +139,7 @@ def scorer_arg_parser(subparsers, parents):
     """
 
     arg_parser = argparse.ArgumentParser(add_help=False)
+
     parser = subparsers.add_parser(
         "scorer",
         description="""
@@ -83,7 +162,7 @@ def global_arguments(parser):
         "-v",
         "--verbose",
         action="store_true",
-        default=argparse.SUPPRESS,
+        default=ARGS_DEFAULT["verbose"],
         help=f"""
         Display more information in the console.
         Default: {ARGS_DEFAULT["verbose"]}

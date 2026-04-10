@@ -64,7 +64,10 @@ class MBQSProtocol:
 
         """
 
-        return Duration(L=self.L, J=self.J, state=self.state).surge_time
+        # FIXME: Use the surge time instead of the Lieb-Robinson time when the first is
+        # correctly implemented.
+        # return Duration(L=self.L, J=self.J, state=self.state).surge_time
+        return Duration(L=self.L, J=self.J, state=self.state).lieb_robinson_time
 
     @property
     def summary(self) -> Mapping:
@@ -77,7 +80,7 @@ class MBQSProtocol:
         """
 
         return {
-            "state": self.state,
+            "state": str(self.state),
             "L": self.L,
             "J": self.J,
             "time": self.surge_time,

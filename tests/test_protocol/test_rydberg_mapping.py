@@ -62,9 +62,10 @@ def test_rydberg_mapping_summary():
     mapping = RydbergMapping(L=6, J=J_75, level=60)
     summary = mapping.summary
 
-    assert summary.keys() == {"L", "J", "a", "Omega", "delta"}
+    assert summary.keys() == {"L", "level", "J", "a", "Omega", "delta"}
 
     assert summary["L"] == 6
+    assert summary["level"] == 60
     assert np.isclose(summary["J"], J_75)
     assert np.isclose(summary["a"], 7.5)
     assert np.isclose(summary["Omega"], 2.432099787325103)

@@ -27,8 +27,6 @@ In particular, it provides the values of:
 - $\Omega$ (amplitude) to reach the critical point.
 """
 
-from collections.abc import Mapping
-
 import numpy as np
 from pulser.devices.interaction_coefficients import c6_dict
 
@@ -108,7 +106,7 @@ class RydbergMapping:
         return self.compute_delta(self.L, self.J)
 
     @property
-    def summary(self) -> Mapping:
+    def summary(self) -> dict:
         """
         Get a summary of the Rydberg mapping.
 
@@ -119,10 +117,11 @@ class RydbergMapping:
 
         return {
             "L": self.L,
-            "J": self.J,
-            "a": self.a,
-            "Omega": self.Omega,
-            "delta": self.delta,
+            "level": self.level,
+            "J": float(self.J),
+            "a": float(self.a),
+            "Omega": float(self.Omega),
+            "delta": float(self.delta),
         }
 
     @staticmethod
