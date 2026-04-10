@@ -25,7 +25,7 @@ dependencies = ["numpy"]
 
 [project.urls]
 
-Homepage = "https://github.com/HaroldErbin/MBQS"
+Homepage = "https://github.com/mbqs/mbqs"
 
 
 [project.scripts]
@@ -37,6 +37,19 @@ mbqs = "mbqs.main:main"
 
 requires = ["hatchling"]
 build-backend = "hatchling.build"
+
+
+[project.optional-dependencies]
+
+dev = [
+    "ipykernel",
+    "pip",
+    "pre-commit",
+    "pytest",
+    "pytest-cov",
+    "ruff~=0.15.3",
+    "ty",
+]
 
 
 [tool.ruff]
@@ -65,17 +78,8 @@ fixable = ["ALL"]
 "tests/*" = ["D", "S101", "F403"]
 
 
-[project.optional-dependencies]
-
-dev = [
-    "ipykernel",
-    "pip",
-    "pre-commit",
-    "pytest",
-    "pytest-cov",
-    "ruff~=0.15.3",
-    "ty",
-]
+[tool.ty.environment]
+root = ["./src"]
 
 
 [tool.pytest.ini_options]
@@ -87,7 +91,3 @@ pythonpath = "src/mbqs"
 [tool.coverage.run]
 
 omit = ["tests/*"]
-
-
-[tool.ty.environment]
-root = ["./src"]
