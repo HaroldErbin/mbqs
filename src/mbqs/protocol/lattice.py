@@ -3,7 +3,6 @@ Compute the lattice geometry.
 """
 
 from collections.abc import Sequence
-from typing import cast
 
 import numpy as np
 from numpy.typing import NDArray
@@ -50,7 +49,7 @@ def ring_coordinates(
         )
     )
 
-    return cast(NDArray, coords)
+    return coords
 
 
 def get_antipodal_idx(L: int) -> int:

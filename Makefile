@@ -9,7 +9,7 @@ check:
 	ruff format --check .
 
 	@echo ""
-	mypy src/mbqs
+	ty check
 
 format:
 	ruff check --fix .
