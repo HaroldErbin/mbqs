@@ -58,6 +58,19 @@ def test_rydberg_mapping_properties_delta():
     assert np.isclose(mapping.delta, 5.082356725289227)
 
 
+def test_rydberg_mapping_summary():
+    mapping = RydbergMapping(L=6, J=J_75, level=60)
+    summary = mapping.summary
+
+    assert summary.keys() == {"L", "J", "a", "Omega", "delta"}
+
+    assert summary["L"] == 6
+    assert np.isclose(summary["J"], J_75)
+    assert np.isclose(summary["a"], 7.5)
+    assert np.isclose(summary["Omega"], 2.432099787325103)
+    assert np.isclose(summary["delta"], 5.082356725289227)
+
+
 @pytest.mark.parametrize(
     ("J", "level", "expected_a"),
     [
