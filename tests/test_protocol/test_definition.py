@@ -7,7 +7,7 @@ import pytest
 
 from mbqs.protocol.definition import MBQSProtocol
 from mbqs.protocol.duration import Duration
-from mbqs.protocol.state import State
+from mbqs.simulations.state import State
 
 
 def test_protocol_init():

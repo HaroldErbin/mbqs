@@ -4,11 +4,11 @@ Data definining a protocol.
 
 from collections.abc import Mapping
 
+from mbqs.simulations.state import State
 from mbqs.types import QubitPairSeq, SystemSize
 
 from .duration import Duration
 from .lattice import get_2pt_idx
-from .state import State
 
 
 class MBQSProtocol:

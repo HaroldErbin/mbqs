@@ -20,7 +20,7 @@ This can be used to provide a window where to restrict the time evolution for
 efficiency.
 """
 
-from .state import State
+from mbqs.simulations.state import State
 
 
 class Duration:
