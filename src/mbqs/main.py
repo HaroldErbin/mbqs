@@ -5,7 +5,7 @@ Main entry point for the MBQS CLI.
 import json
 import os
 from pathlib import Path
-from typing import cast
+from typing import Any, cast
 
 from mbqs import MBQSProtocol, RydbergMapping
 from mbqs.cli.arguments import ARGS_DEFAULT, arg_parser
@@ -52,7 +52,7 @@ def protocol_action(args):
     else:
         J = args.J
 
-    protocol_data = {"J": J, "state": args.state, "sizes": []}
+    protocol_data: dict[str, Any] = {"J": J, "state": args.state, "sizes": []}
 
     if include_rydberg is True:
         if args.a is None:
