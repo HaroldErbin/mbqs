@@ -3,7 +3,7 @@ import logging
 import numpy as np
 import pytest
 
-from mbqs.protocol.lattice import get_2pt_idx, get_antipodal_idx, ring_coordinates
+from mbqs.simulations.lattice import get_2pt_idx, get_antipodal_idx, ring_coordinates
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)

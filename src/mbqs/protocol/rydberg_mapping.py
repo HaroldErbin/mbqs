@@ -30,7 +30,7 @@ In particular, it provides the values of:
 import numpy as np
 from pulser.devices.interaction_coefficients import c6_dict
 
-from mbqs.protocol.lattice import ring_coordinates
+from mbqs.simulations.lattice import ring_coordinates
 
 
 class RydbergMapping:
