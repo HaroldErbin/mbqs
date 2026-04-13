@@ -5,24 +5,24 @@ Functions to display results in the CLI.
 header = "# MBQS protocol\n"
 
 protocol_text = [
-    "J = {J:.3g} rad / µs",
+    "J = {J:.4g} rad / µs",
     "State = {state}",
 ]
 
 size_text = [
     "L = {L}",
-    "Time = {time:.3g} µs",
+    "Time = {time:.4g} µs",
     "Correlation indices: {corr_idx}",
 ]
 
 rydberg_text = [
     "Level = {level}",
-    "a = {a:.3g} µm",
+    "a = {a:.4g} µm",
 ]
 
 pulses_text = [
-    "Ω = {Omega:.3g} rad / µs",
-    "δ = {delta:.3g} rad / µs",
+    "Ω = {Omega:.4g} rad / µs",
+    "δ = {delta:.4g} rad / µs",
 ]
 
 
@@ -66,6 +66,7 @@ def combine_text_single(protocol_data: dict) -> str:
 
     text = header + "\n"
     text += join_with_prefix(protocol_text, "- ").format(**protocol_data)
+    text += "\n"
     text += join_with_prefix(size_text, "- ").format(**protocol_data)
 
     if "rydberg" in protocol_data:

@@ -36,6 +36,8 @@ class MBQSProtocol:
         self.L = L
         self.J = J
 
+        self.duration = Duration(L=self.L, J=self.J, state=self.state)
+
     @property
     def corr_idx(self) -> QubitPairSeq:
         """
@@ -63,11 +65,7 @@ class MBQSProtocol:
             float: Surge time.
 
         """
-
-        # FIXME: Use the surge time instead of the Lieb-Robinson time when the first is
-        # correctly implemented.
-        # return Duration(L=self.L, J=self.J, state=self.state).surge_time
-        return Duration(L=self.L, J=self.J, state=self.state).lieb_robinson_time
+        return self.duration.surge_time()
 
     @property
     def summary(self) -> Mapping:

@@ -35,6 +35,9 @@ def protocol_action(args):
     Execute the protocol action.
     """
 
+    if args.L[0] == 1:
+        raise ValueError("System size must be >= 2.")
+
     if args.json is not None and args.verbose is False:
         display_on_cli = False
     else:
@@ -98,7 +101,7 @@ def protocol_action(args):
         json_path = Path(args.json)
 
         with open(json_path, "w") as f:
-            json.dump(protocol_data, f, indent=4)
+            json.dump(protocol_data, f, indent=2)
 
     return os.EX_OK
 

@@ -1,0 +1,162 @@
+"""
+Simulations for the protocol using the Ising Hamiltonian.
+"""
+
+import numpy as np
+import qutip
+from qutip import Qobj, basis, sesolve, tensor
+
+from mbqs.simulations.time_analysis import get_first_peak_idx
+
+from .lattice import get_antipodal_idx
+from .lieb_robinson import compute_lieb_robinson_time
+from .state import State
+
+
+def sx(j: int, L: int) -> Qobj:
+    """
+    Pauli matrix acting on spin j along x.
+    """
+
+    prod = [qutip.qeye(2) for _ in range(L)]
+    prod[j] = qutip.sigmax()
+    return qutip.tensor(*prod)
+
+
+def sz(j: int, L: int) -> Qobj:
+    """
+    Pauli matrix acting on spin j along z.
+    """
+
+    prod = [qutip.qeye(2) for _ in range(L)]
+    prod[j] = qutip.sigmaz()
+    return qutip.tensor(*prod)
+
+
+def observables(L: int, antipodal_only: bool = False) -> dict[str, Qobj]:
+    """
+    List of observables to compute.
+    """
+
+    corr_1pt = sz(0, L)
+    antipodal_idx = get_antipodal_idx(L)
+
+    if antipodal_only is True:
+        return {"sz": corr_1pt, "szsz": corr_1pt @ sz(antipodal_idx, L)}
+
+    return {
+        "sz": corr_1pt,
+        **{f"szsz_{j}": corr_1pt @ sz(j, L) for j in range(1, antipodal_idx + 1)},
+    }
+
+
+def ising_hamiltonian(J, L):
+    """
+    Ising Hamiltonian at the critical point.
+    """
+
+    H = (
+        J * sum(sz(i, L) @ sz(i + 1, L) for i in range(L - 1))
+        + J * sum(sx(i, L) for i in range(L))
+        + J * sz(0, L) * sz(L - 1, L)
+    )
+
+    return H
+
+
+def state_down(L):
+    """
+    Definition of the down state.
+
+    Eigenstate of sigma_z with eigenvalue -1.
+    """
+
+    return tensor(basis(2, 1) for _ in range(L))  # type: ignore
+
+
+def state_plus(L):
+    """
+    Definition of the plus state.
+
+    Eigenstate of sigma_x with eigenvalue 1.
+    """
+
+    state = tensor(basis(2, 0) + basis(2, 1) for _ in range(L))  # type: ignore
+    return state / state.norm()
+
+
+def select_state(L, state):
+    """
+    Select the initial state.
+    """
+
+    state = State(state)
+
+    if state == State.down:
+        return state_down(L)
+    elif state == State.plus:
+        return state_plus(L)
+    else:
+        raise ValueError(f"Cannot create state {state}.")
+
+
+def make_quench(
+    J: float,
+    state: State,
+    L: int,
+    duration: float,
+    dt: float = 0.001,
+    antipodal_only: bool = False,
+):
+    """
+    Perform a quench for the Ising Hamiltonian.
+    """
+
+    psi = select_state(L, state)
+    H = ising_hamiltonian(J, L)
+    ops = observables(L, antipodal_only)
+
+    if antipodal_only is True:
+        # compute observable only in a window around the approximated surge time
+        if L <= 4:
+            factor = 0.7
+        else:
+            factor = 0.1
+
+        window = 2 * factor * duration
+
+        times = np.linspace(duration, duration + window, int(window / dt) + 1)
+        times = np.insert(times, 0, 0.0)
+    else:
+        # compute observable only at the surge time
+        times = [0.0, duration]
+
+    results = sesolve(H, psi, times, e_ops=ops)
+
+    obs = {
+        key: np.array(results.e_data[key]) - np.array(results.e_data["sz"]) ** 2
+        for key in ops.keys()
+        if key.startswith("szsz")
+    }
+
+    obs["sz"] = np.array(results.e_data["sz"])
+
+    return times, obs
+
+
+def get_surge_time(L, J, state, dt=0.001):
+    """
+    Compute the surge time for the Ising Hamiltonian.
+    """
+
+    duration = compute_lieb_robinson_time(L, J)
+
+    times, obs = make_quench(J, state, L, duration, dt, antipodal_only=True)
+
+    if L <= 3:
+        # szsz_c has a plateau for L = 3, so define peak time using 1-point function
+        idx = get_first_peak_idx(obs["sz"])
+    else:
+        idx = get_first_peak_idx(obs["szsz"])
+
+    return times[idx]

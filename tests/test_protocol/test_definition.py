@@ -3,7 +3,6 @@ Tests for the MBQS protocol definition.
 """
 
 import numpy as np
-import pytest
 
 from mbqs.protocol.definition import MBQSProtocol
 from mbqs.protocol.duration import Duration
@@ -24,13 +23,11 @@ def test_protocol_corr_idx():
     assert protocol.corr_idx == [(0, 1), (0, 2), (0, 3)]
 
 
-@pytest.mark.xfail(raises=NotImplementedError)
 def test_protocol_surge_time():
     protocol = MBQSProtocol(state="down", L=6, J=1.0)
-    assert np.isclose(protocol.surge_time, Duration(L=6, J=1.0).surge_time)
+    assert np.isclose(protocol.surge_time, Duration(L=6, J=1.0).surge_time())
 
 
-# @pytest.mark.xfail(raises=NotImplementedError)
 def test_protocol_summary():
     """
     Test the summary of the MBQS protocol.
@@ -43,6 +40,6 @@ def test_protocol_summary():
         "state": "down",
         "L": 6,
         "J": 1.0,
-        # "time": protocol.surge_time,
+        "time": protocol.surge_time,
         "corr_idx": [(0, 1), (0, 2), (0, 3)],
     }

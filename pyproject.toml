@@ -20,7 +20,7 @@ keywords = [
     "quantum simulations",
 ]
 
-dependencies = ["numpy", "pulser"]
+dependencies = ["numpy", "pulser", "scipy"]
 
 
 [project.urls]
@@ -68,7 +68,7 @@ indent-style = "space"
 [tool.ruff.lint]
 
 select = ["E", "F", "I", "D", "B", "UP", "SIM"]
-ignore = ["E501", "D200", "D202", "D203", "D212", "SIM108"]
+ignore = ["E501", "D200", "D202", "D203", "D212", "SIM108", "SIM118"]
 fixable = ["ALL"]
 
 

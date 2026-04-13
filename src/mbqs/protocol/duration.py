@@ -20,6 +20,8 @@ This can be used to provide a window where to restrict the time evolution for
 efficiency.
 """
 
+from mbqs.simulations import ising_qutip
+from mbqs.simulations.lieb_robinson import compute_lieb_robinson_time
 from mbqs.simulations.state import State
 
 
@@ -43,13 +45,12 @@ class Duration:
         self.J = J
         self.state = state
 
-    @property
-    def surge_time(self) -> float:
+    def surge_time(self, method: str = "qutip") -> float:
         """
         Compute the surge time.
         """
 
-        return self.compute_surge_time(self.L, self.J, self.state)
+        return self.compute_surge_time(self.L, self.J, self.state, method)
 
     @property
     def lieb_robinson_time(self) -> float:
@@ -57,27 +58,40 @@ class Duration:
         Approximation of the surge time using the Lieb-Robinson velocity.
         """
 
-        return self.compute_lieb_robinson_time(self.L, self.J)
+        return self.compute_surge_time(
+            self.L, self.J, self.state, method="lieb_robinson"
+        )
+
+    @property
+    def qutip_surge_time(self) -> float:
+        """
+        Surge time using qutip simulations.
+        """
+
+        return self.compute_surge_time(self.L, self.J, self.state, method="qutip")
+
+    @property
+    def fermions_surge_time(self) -> float:
+        """
+        Surge time using free fermions.
+        """
+
+        return self.compute_surge_time(self.L, self.J, self.state, method="fermions")
 
     @staticmethod
-    def compute_surge_time(L: int, J: float, state=State.down) -> float:
+    def compute_surge_time(L: int, J: float, state=State.down, method="qutip") -> float:
         """
         Compute the surge time.
         """
 
-        # TODO: compute time using free fermions
-        # use the approximate time to evolve the Green function over a window
-        # and find the time at which it is maximum
+        match method:
+            case "fermions":
+                raise NotImplementedError
+            case "qutip":
+                surge_time = ising_qutip.get_surge_time(L, J, state)
+            case "lieb_robinson":
+                surge_time = compute_lieb_robinson_time(L, J)
+            case _:
+                raise ValueError(f"Unknown method to compute surge time: {method}")
 
-        raise NotImplementedError
-
-    @staticmethod
-    def compute_lieb_robinson_time(L: int, J: float) -> float:
-        """
-        Approximation of the surge time using the Lieb-Robinson velocity.
-        """
-
-        velocity = 2 * J
-        distance = L / 2
-
-        return distance / velocity
+        return round(surge_time, 3)
