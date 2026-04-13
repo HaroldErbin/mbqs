@@ -44,26 +44,28 @@ def test_sz() -> None:
 @pytest.mark.parametrize("antipodal_only", [False, True])
 def test_observables(antipodal_only: bool) -> None:
     """
-    Test observables dictionary creation for L=2.
+    Test observables dictionary creation for L=5.
     """
 
-    L = 2
+    L = 5
     ops = ising_qutip.observables(L, antipodal_only=antipodal_only)
 
     sz0 = ising_qutip.sz(0, L)
-    sz1 = ising_qutip.sz(1, L)
+    antipodal_idx = 2
 
     assert "sz" in ops
     assert ops["sz"] == sz0
 
-    if antipodal_only:
+    if antipodal_only is True:
         assert len(ops) == 2
         assert "szsz" in ops
-        assert ops["szsz"] == sz0 @ sz1
+        assert ops["szsz"] == sz0 @ ising_qutip.sz(antipodal_idx, L)
     else:
-        assert len(ops) == 2
-        assert "szsz_1" in ops
-        assert ops["szsz_1"] == sz0 @ sz1
+        print(ops.keys())
+        assert len(ops) == 3
+        for i in range(1, antipodal_idx + 1):
+            assert f"szsz_{i}" in ops
+            assert ops[f"szsz_{i}"] == sz0 @ ising_qutip.sz(i, L)
 
 
 @pytest.mark.parametrize(
