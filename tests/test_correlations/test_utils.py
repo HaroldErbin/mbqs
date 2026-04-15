@@ -14,6 +14,10 @@ from mbqs.correlations.utils import convert_2pt_dict
             {"sz_err": 0.01, "szsz_1_err": 0.02},
             {"sz_err": 0.01, "szsz_err": {(0, 1): 0.02}},
         ),
+        (
+            {"szsz_10": 0.5},
+            {"szsz": {(0, 10): 0.5}},
+        ),
     ],
 )
 def test_convert_2pt_dict(corr: dict, expected: dict) -> None:

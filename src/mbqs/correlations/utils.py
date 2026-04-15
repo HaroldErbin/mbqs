@@ -2,6 +2,7 @@
 Utilities for correlation functions.
 """
 
+import re
 from collections import defaultdict
 
 
@@ -11,6 +12,8 @@ def convert_2pt_dict(corr: dict) -> dict:
 
     This converts the dict from `{szsz_1: ...}` to `{szsz: {(0, 1): ...}}`.
     """
+
+    key_regex = re.compile(r"(szsz(?:_c)?)_(\d+)(_err)?")
 
     result_dict = defaultdict(dict)
 
@@ -24,13 +27,15 @@ def convert_2pt_dict(corr: dict) -> dict:
         if not key.startswith("szsz"):
             continue
 
-        if key.endswith("err"):
-            corr_key = key[:-6] + "_err"
-            idx = key[-5:-4]
-        else:
-            corr_key = key[:-2]
-            idx = key[-1]
+        parts = key_regex.match(key)
+        if parts is None:
+            raise ValueError(f"Invalid key: {key}")
+        parts = parts.groups()
 
-        result_dict[corr_key][(0, int(idx))] = value
+        corr_key = parts[0]
+        if parts[2] is not None:
+            corr_key += parts[2]
+
+        result_dict[corr_key][(0, int(parts[1]))] = value
 
     return dict(result_dict)
