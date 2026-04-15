@@ -13,6 +13,7 @@ type Corr2ptMap = Mapping[QubitPair, float]
 
 type BitstringMap = Mapping[str, int]
 
+type Metric = float
 type MetricMap = Mapping[int, float]
 
 type SystemSize = int
