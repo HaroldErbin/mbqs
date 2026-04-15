@@ -6,7 +6,6 @@ import json
 import os
 
 from mbqs.correlations.samples import SampleCorrelations
-from mbqs.correlations.utils import convert_2pt_dict
 
 
 def _display_corr(corr):
@@ -78,15 +77,13 @@ def correlations_action(args) -> int:
         display_on_cli = True
 
     with open(args.input) as f:
-        samples = SampleCorrelations(json.load(f))
-
-    corr = convert_2pt_dict(samples.correlations)
+        samples_corr = SampleCorrelations(json.load(f))
 
     if display_on_cli is True:
-        print(_display_corr(corr))
+        print(_display_corr(samples_corr.correlations))
 
     if args.output is not None:
         with open(args.output, "w") as f:
-            json.dump(_json_encode_keys(corr), f, indent=4)
+            json.dump(_json_encode_keys(samples_corr.correlations), f, indent=4)
 
     return os.EX_OK

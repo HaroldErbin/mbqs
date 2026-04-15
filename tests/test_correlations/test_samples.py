@@ -169,10 +169,10 @@ def test_sample_correlations_init() -> None:
     correlations = samples_corr.correlations
     assert np.isclose(correlations["sz"], -0.174, atol=ATOL)
     assert np.isclose(correlations["sz_err"], 0.0220, atol=ATOL)
-    assert np.isclose(correlations["szsz_1"], 0.3387, atol=ATOL)
-    assert np.isclose(correlations["szsz_1_err"], 0.0210, atol=ATOL)
-    assert np.isclose(correlations["szsz_c_1"], 0.3084, atol=ATOL)
-    assert np.isclose(correlations["szsz_c_1_err"], 0.0287, atol=ATOL)
+    assert np.isclose(correlations["szsz"][(0, 1)], 0.3387, atol=ATOL)
+    assert np.isclose(correlations["szsz_err"][(0, 1)], 0.0210, atol=ATOL)
+    assert np.isclose(correlations["szsz_c"][(0, 1)], 0.3084, atol=ATOL)
+    assert np.isclose(correlations["szsz_c_err"][(0, 1)], 0.0287, atol=ATOL)
 
 
 def test_bits_list_to_sign_array() -> None:
