@@ -41,6 +41,39 @@ In this package, we provide the evaluation for the folloling initial states:
 - $\ket{+ \cdots +}$
 - $\ket{\downarrow \cdots \downarrow}$
 
+The surge time is defined to be the time at which the antipodal connected 2-point function is maximum. The only exception is for $L = 3$ and with the down state: it is defined to be the time for which the 1-point function is maximum (because the 2-point function has a large plateau).
+
+> [!WARNING] The definition of the surge time for L = 3 is different compared to the original paper.
+
+## Usage
+
+- Display in console the parameters needed to run the protocol for a given system size:
+
+```bash
+mbqs protocol -J 1. -L 4
+```
+
+- Display in console the parameters needed to run the protocol for several system sizes:
+
+```bash
+mbqs protocol -J 1. -L {4..6}
+```
+
+- Parameters for running the protocol on an neutral atom analog quantum simulator can be added using the `--include-rydberg` flag or using the interatomic distance as a parameter instead of the coupling constant:
+
+```bash
+mbqs protocol -J 1. -L 4 --include-rydberg
+mbqs protocol -a 7.75 -L 4
+```
+
+- Save a json file with the protocol parameters (use `--verbose` to also display in the console):
+
+```bash
+mbqs protocol -J 1. -L {4..6} --json protocol.json
+```
+
+Examples of json files can be found in the `examples` directory.
+
 
 ## Contributing
 
@@ -57,3 +90,7 @@ Before performing a commit, ensure that the following returns no error or warnin
 make check
 make test
 ```
+
+## References
+
+- *Many-body Quantum Score: a scalable benchmark for digital and analog quantum processors and first test on a commercial neutral atom device*. H. Erbin, P.-L. Burdeau, C. Bertrand, T. Ayral, and G. Misguich. arXiv:[2601.03461](https://arxiv.org/abs/2601.03461)
