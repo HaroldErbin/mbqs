@@ -61,7 +61,6 @@ def test_observables(antipodal_only: bool) -> None:
         assert "szsz" in ops
         assert ops["szsz"] == sz0 @ ising_qutip.sz(antipodal_idx, L)
     else:
-        print(ops.keys())
         assert len(ops) == 3
         for i in range(1, antipodal_idx + 1):
             assert f"szsz_{i}" in ops
