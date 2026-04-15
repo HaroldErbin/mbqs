@@ -36,6 +36,9 @@ def convert_2pt_dict(corr: dict) -> dict:
         if parts[2] is not None:
             corr_key += parts[2]
 
-        result_dict[corr_key][(0, int(parts[1]))] = value
+        idx = parts[1]
+        print(idx)
+
+        result_dict[corr_key][(0, int(idx))] = value
 
     return dict(result_dict)
