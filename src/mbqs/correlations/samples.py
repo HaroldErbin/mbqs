@@ -49,11 +49,21 @@ class SampleCorrelations:
         avg_2pt = average_corr_2pt(self.corr_2pt)
         avg_2pt_err = average_corr_2pt(self.corr_2pt_err)
 
+        avg_2pt_c = average_corr_2pt(self.corr_2pt_c)
+        avg_2pt_c_err = average_corr_2pt(self.corr_2pt_c_err)
+
         self.correlations.update(
             {f"szsz_{i}": avg_2pt[i] for i in range(1, len(avg_2pt))}
         )
         self.correlations.update(
             {f"szsz_{i}_err": avg_2pt_err[i] for i in range(1, len(avg_2pt))}
+        )
+
+        self.correlations.update(
+            {f"szsz_c_{i}": avg_2pt_c[i] for i in range(1, len(avg_2pt_c))}
+        )
+        self.correlations.update(
+            {f"szsz_c_{i}_err": avg_2pt_c_err[i] for i in range(1, len(avg_2pt_c))}
         )
 
 

@@ -39,7 +39,11 @@ expected_counts = np.array(list(samples.values()))
 
 expected_corr_1pt = np.array([-0.172, -0.175, -0.175])
 expected_corr_2pt = np.array(
-    [[1.0, 0.335, 0.341], [0.335, 1.0, 0.34], [0.341, 0.34, 1.0]]
+    [
+        [1.0, 0.335, 0.341],
+        [0.335, 1.0, 0.34],
+        [0.341, 0.34, 1.0],
+    ]
 )
 
 
@@ -63,6 +67,10 @@ def test_sample_correlations_init() -> None:
     assert np.isclose(correlations["szsz_1_err"], 0.0210, atol=1e-4)
     assert np.isclose(correlations["szsz_2"], 0.3387, atol=1e-4)
     assert np.isclose(correlations["szsz_2_err"], 0.0210, atol=1e-4)
+    assert np.isclose(correlations["szsz_c_1"], 0.3084, atol=1e-4)
+    assert np.isclose(correlations["szsz_c_1_err"], 0.0287, atol=1e-4)
+    assert np.isclose(correlations["szsz_c_2"], 0.3084, atol=1e-4)
+    assert np.isclose(correlations["szsz_c_2_err"], 0.0287, atol=1e-4)
 
 
 def test_bits_list_to_sign_array() -> None:
