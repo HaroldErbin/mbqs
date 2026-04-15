@@ -8,6 +8,7 @@ from typing import overload
 import numpy as np
 from numpy.typing import NDArray
 
+from mbqs.simulations.lattice import get_antipodal_idx
 from mbqs.types import BitstringMap
 
 
@@ -31,6 +32,8 @@ class SampleCorrelations:
         """
 
         self.samples = samples
+        # get L from bitstring length
+        self.L = len(next(iter(samples)))
 
         signs, values = samples_map_to_arrays(self.samples)
 
@@ -52,18 +55,19 @@ class SampleCorrelations:
         avg_2pt_c = average_corr_2pt(self.corr_2pt_c)
         avg_2pt_c_err = average_corr_2pt(self.corr_2pt_c_err)
 
+        antipodal_idx = get_antipodal_idx(self.L)
         self.correlations.update(
-            {f"szsz_{i}": avg_2pt[i] for i in range(1, len(avg_2pt))}
+            {f"szsz_{i}": avg_2pt[i] for i in range(1, antipodal_idx + 1)}
         )
         self.correlations.update(
-            {f"szsz_{i}_err": avg_2pt_err[i] for i in range(1, len(avg_2pt))}
+            {f"szsz_{i}_err": avg_2pt_err[i] for i in range(1, antipodal_idx + 1)}
         )
 
         self.correlations.update(
-            {f"szsz_c_{i}": avg_2pt_c[i] for i in range(1, len(avg_2pt_c))}
+            {f"szsz_c_{i}": avg_2pt_c[i] for i in range(1, antipodal_idx + 1)}
         )
         self.correlations.update(
-            {f"szsz_c_{i}_err": avg_2pt_c_err[i] for i in range(1, len(avg_2pt_c))}
+            {f"szsz_c_{i}_err": avg_2pt_c_err[i] for i in range(1, antipodal_idx + 1)}
         )
 
 
