@@ -85,7 +85,7 @@ def state_plus(L):
     return state / state.norm()
 
 
-def select_state(L, state):
+def select_state(L: int, state: State | str) -> Qobj:
     """
     Select the initial state.
     """
@@ -102,7 +102,7 @@ def select_state(L, state):
 
 def make_quench(
     J: float,
-    state: State,
+    state: State | str,
     L: int,
     duration: float,
     dt: float = 0.001,
@@ -134,7 +134,9 @@ def make_quench(
     results = sesolve(H, psi, times, e_ops=ops)
 
     obs = {
-        key: np.array(results.e_data[key]) - np.array(results.e_data["sz"]) ** 2
+        key.replace("szsz", "szsz_c"): (
+            np.array(results.e_data[key]) - np.array(results.e_data["sz"]) ** 2
+        )
         for key in ops.keys()
         if key.startswith("szsz")
     }
@@ -153,10 +155,10 @@ def get_surge_time(L, J, state, dt=0.001):
 
     times, obs = make_quench(J, state, L, duration, dt, antipodal_only=True)
 
-    if L <= 3:
+    if L <= 3 and state == State.down:
         # szsz_c has a plateau for L = 3, so define peak time using 1-point function
         idx = get_first_peak_idx(obs["sz"])
     else:
-        idx = get_first_peak_idx(obs["szsz"])
+        idx = get_first_peak_idx(obs["szsz_c"])
 
     return times[idx]
