@@ -35,6 +35,7 @@ def arg_parser():
 
     protocol_arg_parser(subparsers, parents=[global_parser])
     scorer_arg_parser(subparsers, parents=[global_parser])
+    correlations_arg_parser(subparsers, parents=[global_parser])
 
     return parser
 
@@ -146,6 +147,46 @@ def scorer_arg_parser(subparsers, parents):
         Compute MBQS score.
         """,
         parents=parents + [arg_parser],
+    )
+
+    return parser
+
+
+def correlations_arg_parser(subparsers, parents):
+    """
+    Set up the argument parser for the correlations action.
+    """
+
+    arg_parser = argparse.ArgumentParser(add_help=False)
+
+    parser = subparsers.add_parser(
+        "correlations",
+        description="""
+        Compute correlation functions from bitstrings.
+        """,
+        parents=parents + [arg_parser],
+    )
+
+    parser.add_argument(
+        "--input",
+        "-i",
+        type=str,
+        required=True,
+        help="""
+        Path to the input file containing the bitstrings.
+        Default: None.
+        """,
+    )
+
+    parser.add_argument(
+        "--output",
+        "-o",
+        type=str,
+        default=None,
+        help="""
+        Path to the output file containing the correlation functions.
+        Default: None.
+        """,
     )
 
     return parser

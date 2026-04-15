@@ -5,6 +5,7 @@ Main entry point for the MBQS CLI.
 import os
 
 from mbqs.cli.arguments import arg_parser
+from mbqs.cli.correlations import correlations_action
 from mbqs.cli.protocol import protocol_action
 
 
@@ -21,9 +22,10 @@ def main() -> int:
     match args.action:
         case "protocol":
             code = protocol_action(args)
+        case "correlations":
+            code = correlations_action(args)
         case "scorer":
-            # code = scorer_action(args)
-            raise NotImplementedError
+            raise NotImplementedError("Scorer action not implemented yet.")
         case _:
             parser.print_help()
 

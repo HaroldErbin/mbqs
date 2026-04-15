@@ -2,14 +2,35 @@
 Utilities for correlation functions.
 """
 
-from mbqs.types import Corr1ptMap, Corr2ptMap
+from collections import defaultdict
 
 
-def compute_connected_2pt_corr(
-    corr_1pt: Corr1ptMap, corr_2pt: Corr2ptMap
-) -> Corr2ptMap:
+def convert_2pt_dict(corr: dict) -> dict:
     """
-    Compute the connected 2-point correlation functions.
+    Convert the keys of the 2-point correlation functions.
+
+    This converts the dict from `{szsz_1: ...}` to `{szsz: {(0, 1): ...}}`.
     """
 
-    return {}
+    result_dict = defaultdict(dict)
+
+    if "sz" in corr:
+        result_dict["sz"] = corr["sz"]
+
+    if "sz_err" in corr:
+        result_dict["sz_err"] = corr["sz_err"]
+
+    for key, value in corr.items():
+        if not key.startswith("szsz"):
+            continue
+
+        if key.endswith("err"):
+            corr_key = key[:-6] + "_err"
+            idx = key[-5:-4]
+        else:
+            corr_key = key[:-2]
+            idx = key[-1]
+
+        result_dict[corr_key][(0, int(idx))] = value
+
+    return dict(result_dict)
