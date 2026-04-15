@@ -2,6 +2,7 @@ import numpy as np
 import pytest
 
 from mbqs.protocol.duration import Duration
+from mbqs.simulations.state import State
 
 # J for a = 7.5
 J_75 = 1.2160498936625515
@@ -42,10 +43,31 @@ def test_duration_properties_lieb_robinson_time():
         (20, J_75, 4.495),
     ],
 )
-def test_compute_surge_time(L, J, expected_surge_time):
+def test_compute_surge_time_down(L, J, expected_surge_time):
+
     if L <= 14:
-        assert np.isclose(
-            Duration.compute_surge_time(L, J), expected_surge_time, atol=1e-3
-        )
+        duration = Duration.compute_surge_time(L, J, state=State.down)
+        assert np.isclose(duration, expected_surge_time, atol=1e-3)
+    else:
+        pytest.skip("L > 14, too long to compute")
+
+
+@pytest.mark.parametrize(
+    ("L", "J", "expected_surge_time"),
+    [
+        (3, J_75, 0.646),
+        (4, J_75, 0.928),
+        (5, J_75, 1.153),
+        (6, J_75, 1.359),
+        (7, J_75, 1.598),
+        (8, J_75, 1.819),
+        (20, J_75, 4.208),
+    ],
+)
+def test_compute_surge_time_plus(L, J, expected_surge_time):
+
+    if L <= 14:
+        duration = Duration.compute_surge_time(L, J, state=State.plus)
+        assert np.isclose(duration, expected_surge_time, atol=1e-3)
     else:
         pytest.skip("L > 14, too long to compute")
