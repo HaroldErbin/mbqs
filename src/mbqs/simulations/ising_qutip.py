@@ -101,8 +101,9 @@ def select_state(L: int, state: State | str) -> Qobj:
 
 
 def make_quench(
-    J: float,
-    state: State | str,
+    *,
+    J: float = 1.0,
+    state: State | str = State.down,
     L: int,
     duration: float,
     dt: float = 0.001,
@@ -146,14 +147,18 @@ def make_quench(
     return times, obs
 
 
-def get_surge_time(L, J, state, dt=0.001):
+def get_surge_time(
+    *, L: int, J: float = 1.0, state: State | str = State.down, dt: float = 0.001
+):
     """
     Compute the surge time for the Ising Hamiltonian.
     """
 
     duration = compute_lieb_robinson_time(L, J)
 
-    times, obs = make_quench(J, state, L, duration, dt, antipodal_only=True)
+    times, obs = make_quench(
+        J=J, state=state, L=L, duration=duration, dt=dt, antipodal_only=True
+    )
 
     if L <= 3 and state == State.down:
         # szsz_c has a plateau for L = 3, so define peak time using 1-point function

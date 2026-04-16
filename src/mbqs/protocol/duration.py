@@ -88,7 +88,7 @@ class Duration:
             case "fermions":
                 raise NotImplementedError
             case "qutip":
-                surge_time = ising_qutip.get_surge_time(L, J, state)
+                surge_time = ising_qutip.get_surge_time(L=L, J=J, state=state)
             case "lieb_robinson":
                 surge_time = compute_lieb_robinson_time(L, J)
             case _:

@@ -79,5 +79,5 @@ def test_get_surge_time(L: int, expected: float) -> None:
     Test get_surge_time function for L=3 and L=6.
     """
 
-    res = ising_qutip.get_surge_time(L, J_75, State.down)
+    res = ising_qutip.get_surge_time(L=L, J=J_75, state=State.down)
     assert np.isclose(res, expected, atol=1e-3)

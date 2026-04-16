@@ -88,13 +88,13 @@ def metric_from_correlations(
 
     match method:
         case "qutip":
-            duration = ising_qutip.get_surge_time(L, J, state, dt=0.001)
+            duration = ising_qutip.get_surge_time(L=L, J=J, state=state, dt=0.001)
 
             _, theory_correlations = ising_qutip.make_quench(
-                J,
-                state,
-                L,
-                duration,
+                J=J,
+                state=state,
+                L=L,
+                duration=duration,
                 antipodal_only=False,
             )
 
