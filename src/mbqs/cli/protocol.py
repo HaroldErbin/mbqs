@@ -96,7 +96,7 @@ def protocol_action(args):
     if args.L[0] == 1:
         raise ValueError("System size must be >= 2.")
 
-    if args.json is not None and args.verbose is False:
+    if args.output is not None and args.verbose is False:
         display_on_cli = False
     else:
         display_on_cli = True
@@ -107,6 +107,9 @@ def protocol_action(args):
 
     level = args.level if args.level is not None else ARGS_DEFAULT["level"]
     level = cast(int, level)
+
+    if args.J is None and args.a is None:
+        args.J = cast(float, ARGS_DEFAULT["J"])
 
     if args.a is not None:
         J = RydbergMapping.compute_J(args.a, level)
@@ -155,10 +158,10 @@ def protocol_action(args):
             text = combine_text(protocol_data)
         print(text)
 
-    if args.json is not None:
-        json_path = Path(args.json)
+    if args.output is not None:
+        json_path = Path(args.output)
 
         with open(json_path, "w") as f:
-            json.dump(protocol_data, f, indent=2)
+            json.dump(protocol_data, f, indent=4)
 
     return os.EX_OK

@@ -59,6 +59,19 @@ def _json_encode_keys(data):
     return conv
 
 
+def compute_correlations_from_samples(args):
+    """
+    Compute correlation functions from bitstrings.
+    """
+
+    with open(args.input) as f:
+        samples_corr = SampleCorrelations(json.load(f))
+
+    results = samples_corr.correlations
+
+    return results
+
+
 def correlations_action(args) -> int:
     """
     Compute correlation functions from bitstrings.
@@ -76,14 +89,19 @@ def correlations_action(args) -> int:
     else:
         display_on_cli = True
 
-    with open(args.input) as f:
-        samples_corr = SampleCorrelations(json.load(f))
+    if args.input is not None:
+        results = compute_correlations_from_samples(args)
+    else:
+        if args.L is None:
+            raise ValueError("System size `-L` must be provided.")
+        # results = compute_exact_correlations(args)
+        raise NotImplementedError
 
     if display_on_cli is True:
-        print(_display_corr(samples_corr.correlations))
+        print(_display_corr(results))
 
     if args.output is not None:
         with open(args.output, "w") as f:
-            json.dump(_json_encode_keys(samples_corr.correlations), f, indent=4)
+            json.dump(_json_encode_keys(results), f, indent=4)
 
     return os.EX_OK

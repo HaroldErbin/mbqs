@@ -6,9 +6,11 @@ import argparse
 
 ARGS_DEFAULT = {
     "verbose": False,
+    "J": 1.0,
     "state": "down",
     "include_rydberg": False,
     "level": 60,
+    "a": None,
 }
 
 
@@ -40,21 +42,10 @@ def arg_parser():
     return parser
 
 
-def protocol_arg_parser(subparsers, parents):
+def physical_arguments(parser, required=True):
     """
-    Set up the argument parser for the protocol action.
+    Add physical arguments to the parser.
     """
-
-    arg_parser = argparse.ArgumentParser(add_help=False)
-
-    parser = subparsers.add_parser(
-        "protocol",
-        description="""
-        Describe the protocol parameters given a state and a system size or a list of
-        system sizes.
-        """,
-        parents=parents + [arg_parser],
-    )
 
     parser.add_argument(
         "--state",
@@ -67,15 +58,15 @@ def protocol_arg_parser(subparsers, parents):
         """,
     )
 
-    group = parser.add_mutually_exclusive_group(required=True)
+    group = parser.add_mutually_exclusive_group()
 
     group.add_argument(
         "-J",
         type=float,
         default=None,
-        help="""
+        help=f"""
         Ising coupling.
-        Default: None.
+        Default: {ARGS_DEFAULT["J"]}.
         """,
     )
 
@@ -101,6 +92,71 @@ def protocol_arg_parser(subparsers, parents):
     )
 
     parser.add_argument(
+        "-L",
+        type=int,
+        nargs="+",
+        required=required,
+        help="""
+        System size(s): number(s) of qubits.
+        Can be a single number or a list.
+        """,
+    )
+
+    return parser
+
+
+def input_output_arguments(
+    parser, input_required=False, output_required=False, remove_input=False
+):
+    """
+    Add input and output arguments to the parser.
+    """
+
+    if remove_input is False:
+        parser.add_argument(
+            "--input",
+            "-i",
+            type=str,
+            default=None,
+            required=input_required,
+            help="""
+            Path to input JSON file.
+            Default: None.
+            """,
+        )
+
+    parser.add_argument(
+        "--output",
+        "-o",
+        type=str,
+        default=None,
+        required=output_required,
+        help="""
+        Path to output JSON file.
+        Default: None.
+        """,
+    )
+
+
+def protocol_arg_parser(subparsers, parents):
+    """
+    Set up the argument parser for the protocol action.
+    """
+
+    arg_parser = argparse.ArgumentParser(add_help=False)
+
+    parser = subparsers.add_parser(
+        "protocol",
+        description="""
+        Describe the protocol parameters given a state and a system size or a list of
+        system sizes.
+        The protocol can be saved as a JSON file with `-o`. In this case, the protocol
+        is not printed to the console except if verbose is true.
+        """,
+        parents=parents + [arg_parser],
+    )
+
+    parser.add_argument(
         "--include-rydberg",
         action="store_true",
         default=ARGS_DEFAULT["include_rydberg"],
@@ -110,26 +166,8 @@ def protocol_arg_parser(subparsers, parents):
         """,
     )
 
-    parser.add_argument(
-        "-L",
-        type=int,
-        nargs="+",
-        required=True,
-        help="""
-        System size(s): number(s) of qubits.
-        Can be a single number or a list.
-        """,
-    )
-
-    parser.add_argument(
-        "--json",
-        type=str,
-        default=None,
-        help="""
-        Output the protocol as a JSON file. In this case, the protocol is not printed
-        to the console except if verbose is true.
-        """,
-    )
+    physical_arguments(parser)
+    input_output_arguments(parser, remove_input=True)
 
     return parser
 
@@ -162,32 +200,16 @@ def correlations_arg_parser(subparsers, parents):
     parser = subparsers.add_parser(
         "correlations",
         description="""
-        Compute correlation functions from bitstrings.
+        Compute correlation functions. If physical parameters are provided, it computes
+        the correlations at the surge time by performing the quench in the Ising
+        Hamiltonian. If a JSON file of samples is provided, it computes the correlations
+        from the bitstring counts.
         """,
         parents=parents + [arg_parser],
     )
 
-    parser.add_argument(
-        "--input",
-        "-i",
-        type=str,
-        required=True,
-        help="""
-        Path to the input file containing the bitstrings.
-        Default: None.
-        """,
-    )
-
-    parser.add_argument(
-        "--output",
-        "-o",
-        type=str,
-        default=None,
-        help="""
-        Path to the output file containing the correlation functions.
-        Default: None.
-        """,
-    )
+    physical_arguments(parser, required=False)
+    input_output_arguments(parser)
 
     return parser
 
