@@ -4,8 +4,11 @@ Action to compute correlation functions from bitstrings.
 
 import json
 import os
+from typing import cast
 
-from mbqs.correlations.samples import SampleCorrelations
+from mbqs import RydbergMapping
+from mbqs.cli.arguments import ARGS_DEFAULT
+from mbqs.correlations import SampleCorrelations, SurgeCorrelations
 
 
 def _display_corr(corr):
@@ -67,7 +70,34 @@ def compute_correlations_from_samples(args):
     with open(args.input) as f:
         samples_corr = SampleCorrelations(json.load(f))
 
-    results = samples_corr.correlations
+    return samples_corr.correlations
+
+
+def compute_exact_correlations(args):
+    """
+    Compute correlation functions from bitstrings.
+    """
+
+    L = args.L[0]
+
+    if args.J is None and args.a is None:
+        args.J = cast(float, ARGS_DEFAULT["J"])
+
+    if args.a is not None:
+        level = args.level if args.level is not None else ARGS_DEFAULT["level"]
+        level = cast(int, level)
+        J = RydbergMapping.compute_J(args.a, level)
+    else:
+        J = args.J
+
+    corr = SurgeCorrelations(J=J, state=args.state, L=L)
+
+    results = {
+        "J": J,
+        "state": args.state,
+        "L": L,
+        "correlations": corr.correlations,
+    }
 
     return results
 
@@ -94,11 +124,15 @@ def correlations_action(args) -> int:
     else:
         if args.L is None:
             raise ValueError("System size `-L` must be provided.")
-        # results = compute_exact_correlations(args)
-        raise NotImplementedError
+        results = compute_exact_correlations(args)
 
     if display_on_cli is True:
-        print(_display_corr(results))
+        if "correlations" in results:
+            corr = results["correlations"]
+        else:
+            corr = results
+
+        print(_display_corr(corr))
 
     if args.output is not None:
         with open(args.output, "w") as f:

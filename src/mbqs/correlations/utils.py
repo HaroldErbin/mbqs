@@ -37,7 +37,6 @@ def convert_2pt_dict(corr: dict) -> dict:
             corr_key += parts[2]
 
         idx = parts[1]
-
         result_dict[corr_key][(0, int(idx))] = value
 
     return dict(result_dict)

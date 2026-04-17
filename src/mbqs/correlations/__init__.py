@@ -2,7 +2,7 @@
 Compute correlations functions.
 """
 
-from .ising import IsingCorrelations
 from .samples import SampleCorrelations
+from .surge_correlations import SurgeCorrelations
 
-__all__ = ["IsingCorrelations", "SampleCorrelations"]
+__all__ = ["SampleCorrelations", "SurgeCorrelations"]

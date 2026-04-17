@@ -134,15 +134,17 @@ def make_quench(
 
     results = sesolve(H, psi, times, e_ops=ops)
 
-    obs = {
-        key.replace("szsz", "szsz_c"): (
-            np.array(results.e_data[key]) - np.array(results.e_data["sz"]) ** 2
-        )
-        for key in ops.keys()
-        if key.startswith("szsz")
-    }
+    obs = {key: np.array(values) for key, values in results.e_data.items()}
 
-    obs["sz"] = np.array(results.e_data["sz"])
+    obs.update(
+        {
+            key.replace("szsz", "szsz_c"): (
+                np.array(results.e_data[key]) - np.array(results.e_data["sz"]) ** 2
+            )
+            for key in ops.keys()
+            if key.startswith("szsz")
+        }
+    )
 
     return times, obs
 
