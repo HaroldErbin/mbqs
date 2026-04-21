@@ -10,6 +10,7 @@ import numpy as np
 from numpy.typing import NDArray
 
 from mbqs.correlations import SampleCorrelations
+from mbqs.protocol.data import find_data_type
 from mbqs.simulations.state import State
 from mbqs.types import BitstringMap, Corr2ptMap
 
@@ -20,6 +21,8 @@ class TestSuccess(IntEnum):
     """
     Encoding for MBQS test outcomes.
     """
+
+    __test__ = False
 
     FAILED = -1
     UNDECIDED = 0
@@ -178,10 +181,9 @@ class MBQS:
 
     def __init__(
         self,
+        data: Mapping[int, Corr2ptMap] | Mapping[int, BitstringMap],
+        data_errors: Mapping[int, Corr2ptMap] | None = None,
         *,
-        correlations: Mapping[int, Corr2ptMap] | None = None,
-        correlations_errors: Mapping[int, Corr2ptMap] | None = None,
-        samples: Mapping[int, BitstringMap] | None = None,
         J: float,
         state: State | str = State.down,
         threshold: float | Sequence[float] = 0.1,
@@ -190,9 +192,8 @@ class MBQS:
         Initialize the MBQS scorer.
 
         Args:
-            correlations: Dictionary of correlations for different system sizes.
-            correlations_errors: Dictionary of errors on the correlations.
-            samples: Dictionary of bitstrings with counts for different system sizes.
+            data: Dictionary of correlations or samples for different system sizes.
+            data_errors: Dictionary of errors on the correlations.
             J: Coupling constant.
             state: State of the system.
             threshold: Threshold for the success test.
@@ -203,15 +204,15 @@ class MBQS:
         self.state = state
         self.threshold = threshold
 
-        self.correlations = correlations
-        self.correlations_errors = correlations_errors
-        self.samples = samples
+        data_type = find_data_type(data)
 
-        if self.correlations is None:
-            # compute from bitsrings (raise error if absent)
-
-            if self.samples is None:
-                raise ValueError("No correlations or samples provided.")
+        if data_type == "correlations_sequence":
+            data = cast(Mapping[int, Corr2ptMap], data)
+            self.correlations = data
+            self.correlations_errors = data_errors
+        elif data_type == "samples_sequence":
+            data = cast(Mapping[int, BitstringMap], data)
+            self.samples = data
 
             corr_obj = {L: SampleCorrelations(s) for L, s in self.samples.items()}
             self.correlations = {
@@ -221,8 +222,10 @@ class MBQS:
                 L: val.correlations["szsz_c_err"] for L, val in corr_obj.items()
             }
         else:
-            if self.samples is not None:
-                raise ValueError("Both correlations and samples provided.")
+            raise ValueError(
+                "Invalid data type: must be a dict of system sizes to samples or "
+                "2-point correlations."
+            )
 
         self.score = None
         self.history = None

@@ -273,7 +273,7 @@ def test_mbqs_class_init_correlations() -> None:
     Test MBQS class initialization with correlations.
     """
 
-    mbqs = MBQS(correlations=approx_corr, J=J_75, state="down", threshold=0.1)
+    mbqs = MBQS(data=approx_corr, J=J_75, state="down", threshold=0.1)
 
     assert mbqs.J == J_75
     assert mbqs.state == "down"
@@ -286,7 +286,7 @@ def test_mbqs_class_init_samples() -> None:
     Test MBQS class initialization with samples.
     """
 
-    mbqs = MBQS(samples=samples, J=J_75, state="down", threshold=0.1)
+    mbqs = MBQS(data=samples, J=J_75, state="down", threshold=0.1)
 
     assert mbqs.J == J_75
     assert mbqs.state == "down"
@@ -299,7 +299,7 @@ def test_mbqs_class_compute_score() -> None:
     Test MBQS class compute_score method.
     """
 
-    mbqs = MBQS(correlations=approx_corr, J=J_75, state="down", threshold=0.1)
+    mbqs = MBQS(data=approx_corr, J=J_75, state="down", threshold=0.1)
     mbqs.compute_score()
 
     assert mbqs.score == 5
@@ -307,22 +307,24 @@ def test_mbqs_class_compute_score() -> None:
 
 
 @pytest.mark.parametrize(
-    ("kwargs", "match"),
+    "data",
     [
-        ({}, "No correlations or samples provided"),
-        (
-            {"correlations": approx_corr, "samples": samples},
-            "Both correlations and samples provided",
-        ),
+        {"01": 2},
+        {(0, 1): 2.0},
     ],
 )
-def test_mbqs_class_errors(kwargs: dict, match: str) -> None:
+def test_mbqs_class_errors(data: dict) -> None:
     """
     Test MBQS class error cases.
     """
 
-    with pytest.raises(ValueError, match=match):
-        MBQS(J=1.0, threshold=0.1, **kwargs)
+    error = (
+        "Invalid data type: must be a dict of system sizes to samples or "
+        "2-point correlations."
+    )
+
+    with pytest.raises(ValueError, match=error):
+        MBQS(data=data, J=1.0, threshold=0.1)
 
 
 def test_mbqs_class_extract_array() -> None:
@@ -330,7 +332,7 @@ def test_mbqs_class_extract_array() -> None:
     Test MBQS class extract_array method.
     """
 
-    mbqs = MBQS(correlations=approx_corr, J=J_75, state="down", threshold=0.1)
+    mbqs = MBQS(data=approx_corr, J=J_75, state="down", threshold=0.1)
     mbqs.compute_score()
 
     assert mbqs.history is not None
@@ -350,7 +352,7 @@ def test_mbqs_summary() -> None:
     Test MBQS summary method.
     """
 
-    mbqs = MBQS(correlations=approx_corr, J=J_75, state="down", threshold=0.1)
+    mbqs = MBQS(data=approx_corr, J=J_75, state="down", threshold=0.1)
     mbqs.compute_score()
 
     summary = mbqs.summary()
@@ -366,7 +368,7 @@ def test_mbqs_extract_array_errors() -> None:
     Test MBQS extract_array error cases.
     """
 
-    mbqs = MBQS(correlations=approx_corr, J=J_75, state="down", threshold=0.1)
+    mbqs = MBQS(data=approx_corr, J=J_75, state="down", threshold=0.1)
 
     with pytest.raises(ValueError, match="No history computed yet."):
         mbqs.extract_array("metric")
@@ -382,7 +384,7 @@ def test_mbqs_extract_array_multiple_thresholds() -> None:
     """
 
     thresholds = [0.1, 0.15]
-    mbqs = MBQS(correlations=approx_corr, J=J_75, state="down", threshold=thresholds)
+    mbqs = MBQS(data=approx_corr, J=J_75, state="down", threshold=thresholds)
     mbqs.compute_score()
 
     success_arr = mbqs.extract_array("success")
