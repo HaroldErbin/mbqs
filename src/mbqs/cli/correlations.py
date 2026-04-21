@@ -9,6 +9,7 @@ from typing import cast
 from mbqs import RydbergMapping
 from mbqs.cli.arguments import ARGS_DEFAULT
 from mbqs.correlations import SampleCorrelations, SurgeCorrelations
+from mbqs.json_utils import json_encode_keys
 
 
 def _display_corr(corr):
@@ -45,21 +46,6 @@ def _display_corr(corr):
             text += "\n"
 
     return text
-
-
-def _json_encode_keys(data):
-    conv = {}
-
-    if not isinstance(data, dict):
-        return data
-
-    for k, v in data.items():
-        if isinstance(k, tuple):
-            k = str(k)
-
-        conv[k] = _json_encode_keys(v)
-
-    return conv
 
 
 def compute_correlations_from_samples(args):
@@ -136,6 +122,6 @@ def correlations_action(args) -> int:
 
     if args.output is not None:
         with open(args.output, "w") as f:
-            json.dump(_json_encode_keys(results), f, indent=4)
+            json.dump(json_encode_keys(results), f, indent=4)
 
     return os.EX_OK
