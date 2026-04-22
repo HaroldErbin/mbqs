@@ -28,6 +28,13 @@ class TestSuccess(IntEnum):
     UNDECIDED = 0
     SUCCESS = 1
 
+    def __str__(self) -> str:
+        """
+        Return the string representation of the test outcome.
+        """
+
+        return self.name.lower()
+
 
 @overload
 def compute_test_success(
