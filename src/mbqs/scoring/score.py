@@ -10,7 +10,7 @@ import numpy as np
 from numpy.typing import NDArray
 
 from mbqs.correlations import SampleCorrelations
-from mbqs.protocol.data import find_data_type
+from mbqs.protocol.data_utils import find_data_type, find_protocol_parameters
 from mbqs.simulations.state import State
 from mbqs.types import BitstringMap, Corr2ptMap
 
@@ -170,22 +170,33 @@ class MBQS:
     Compute the MBQS score.
     """
 
-    correlations: Mapping[int, Corr2ptMap] | None
-    correlations_errors: Mapping[int, Corr2ptMap] | None
-    samples: Mapping[int, BitstringMap] | None
+    correlations: Corr2ptMap | Mapping[int, Corr2ptMap] | None
+    correlations_errors: Corr2ptMap | Mapping[int, Corr2ptMap] | None
+    samples: BitstringMap | Mapping[int, BitstringMap] | None
     J: float
     state: State | str
+    L: int | Sequence[int] | None
     threshold: float | Sequence[float]
-    score: int | dict[float, int] | None
-    history: dict[int, Any] | None
+
+    score: int | dict[float, int] | None = None
+    history: dict[int, Any] | None = None
+    metric: float | dict[int, float] | None = None
+    success: TestSuccess | dict[float, TestSuccess] | None = None
+
+    data_type: str
 
     def __init__(
         self,
-        data: Mapping[int, Corr2ptMap] | Mapping[int, BitstringMap],
-        data_errors: Mapping[int, Corr2ptMap] | None = None,
+        data: Corr2ptMap
+        | BitstringMap
+        | Mapping[str, Any]
+        | Mapping[int, Corr2ptMap]
+        | Mapping[int, BitstringMap],
+        data_errors: Corr2ptMap | Mapping[int, Corr2ptMap] | None = None,
         *,
-        J: float,
+        J: float = 0.1,
         state: State | str = State.down,
+        L: int | None = None,
         threshold: float | Sequence[float] = 0.1,
     ):
         """
@@ -196,45 +207,96 @@ class MBQS:
             data_errors: Dictionary of errors on the correlations.
             J: Coupling constant.
             state: State of the system.
+            L: System size.
             threshold: Threshold for the success test.
 
         """
 
-        self.J = J
-        self.state = state
-        self.threshold = threshold
+        data_type = find_data_type(cast(Mapping[str, Any], data))
+        parameters = find_protocol_parameters(cast(Mapping[str, Any], data))
 
-        data_type = find_data_type(data)
+        self.J = parameters.get("J", J)
+        self.state = State(parameters.get("state", state))
+        self.threshold = parameters.get("threshold", threshold)
 
-        if data_type == "correlations_sequence":
-            data = cast(Mapping[int, Corr2ptMap], data)
-            self.correlations = data
-            self.correlations_errors = data_errors
-        elif data_type == "samples_sequence":
-            data = cast(Mapping[int, BitstringMap], data)
-            self.samples = data
+        if data_type == "protocol":
+            raise ValueError("Data must contain either correlations or samples.")
 
-            corr_obj = {L: SampleCorrelations(s) for L, s in self.samples.items()}
-            self.correlations = {
-                L: val.correlations["szsz_c"] for L, val in corr_obj.items()
-            }
-            self.correlations_errors = {
-                L: val.correlations["szsz_c_err"] for L, val in corr_obj.items()
-            }
+        if data_type.startswith("protocol_"):
+            if isinstance(data, dict):
+                data_dict = cast(Mapping[str, Any], data)
+                if "correlations" in data_dict:
+                    data = data_dict["correlations"]
+                elif "samples" in data_dict:
+                    data = data_dict["samples"]
+
+            data_type = data_type.removeprefix("protocol_")
+
+        match data_type:
+            case "correlations":
+                data = cast(Corr2ptMap, data)
+                self.correlations = data
+                self.correlations_errors = data_errors
+
+            case "samples":
+                data = cast(BitstringMap, data)
+                self.samples = data
+
+                corr_obj = SampleCorrelations(data)
+                self.correlations = corr_obj.correlations["szsz_c"]
+                self.correlations_errors = corr_obj.correlations["szsz_c_err"]
+
+            case "correlations_sequence":
+                data = cast(Mapping[int, Corr2ptMap], data)
+                self.correlations = data
+                self.correlations_errors = data_errors
+
+            case "samples_sequence":
+                data = cast(Mapping[int, BitstringMap], data)
+                self.samples = data
+
+                corr_obj = {L: SampleCorrelations(s) for L, s in self.samples.items()}
+                self.correlations = {
+                    L: val.correlations["szsz_c"] for L, val in corr_obj.items()
+                }
+                self.correlations_errors = {
+                    L: val.correlations["szsz_c_err"] for L, val in corr_obj.items()
+                }
+
+            case _:
+                raise ValueError(
+                    "Invalid data type: must be a dict of system sizes to samples or "
+                    "2-point correlations."
+                )
+
+        self.data_type = data_type
+
+        if data_type in ("samples_sequence", "correlations_sequence"):
+            if L is not None:
+                raise ValueError("L should not be provided when data is a sequence.")
+
+            self.L = list(self.correlations.keys())
         else:
-            raise ValueError(
-                "Invalid data type: must be a dict of system sizes to samples or "
-                "2-point correlations."
-            )
+            L = parameters.get("L", L)
+            if L is None:
+                raise ValueError("L must be provided when data is not a sequence.")
 
-        self.score = None
-        self.history = None
+            self.L = int(L)
 
     def compute_score(self, method: str = "qutip", stop_on_fail: bool = False) -> None:
         """
         Compute the MBQS score.
         """
+
         assert self.correlations is not None
+
+        if self.data_type not in ("correlations_sequence", "samples_sequence"):
+            raise TypeError("Data type must be a sequence to evaluate the score.")
+
+        self.correlations = cast(Mapping[int, Corr2ptMap], self.correlations)
+        self.correlations_errors = cast(
+            Mapping[int, Corr2ptMap], self.correlations_errors
+        )
 
         self.score, self.history = compute_score(
             self.correlations,
@@ -246,18 +308,52 @@ class MBQS:
             stop_on_fail=stop_on_fail,
         )
 
-    def summary(self) -> dict:
+    def compute_metric(self, method: str = "qutip") -> None:
+        """
+        Compute the MBQS metric.
+        """
+
+        assert self.correlations is not None
+
+        if self.data_type not in ("correlations", "samples"):
+            raise TypeError("Data type must not be a sequence to evaluate the metric.")
+
+        self.correlations = cast(Corr2ptMap, self.correlations)
+        self.correlations_errors = cast(Corr2ptMap, self.correlations_errors)
+
+        self.metric = compute_metric(
+            self.correlations,
+            self.correlations_errors,
+            J=self.J,
+            state=self.state,
+            L=cast(int, self.L),
+            method=method,
+        )
+
+        self.success = compute_test_success(
+            self.metric,
+            threshold=self.threshold,
+        )
+
+    def summary(self) -> dict[str, Any]:
         """
         Prepare a summary of the MBQS score.
         """
 
-        summary = {
+        summary: dict[str, Any] = {
             "J": self.J,
             "state": self.state,
             "threshold": self.threshold,
-            "score": self.score,
-            "history": self.history,
         }
+
+        if self.data_type in ("correlations_sequence", "samples_sequence"):
+            summary["score"] = self.score
+            summary["history"] = self.history
+        else:
+            summary["metric"] = self.metric
+            summary["success"] = self.success
+            summary["L"] = self.L
+
         return summary
 
     def extract_array(self, key: str) -> NDArray:

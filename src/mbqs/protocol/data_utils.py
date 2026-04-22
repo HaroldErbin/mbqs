@@ -71,7 +71,7 @@ def find_data_type(data: Mapping[str, Any] | Mapping[int, Any]) -> str:
 
 def find_protocol_parameters(
     data: Mapping[str, Any] | Mapping[int, Any],
-) -> dict[str, float]:
+) -> dict[str, Any]:
     """
     Find protocol parameters from a data dict.
     """
@@ -85,9 +85,10 @@ def find_protocol_parameters(
     if not data_type.startswith("protocol"):
         return {}
 
-    if "correlations" in data.keys():
-        del data["correlations"]
-    elif "samples" in data.keys():
-        del data["samples"]
+    params = dict(data)
+    if "correlations" in params:
+        del params["correlations"]
+    elif "samples" in params:
+        del params["samples"]
 
-    return {**data}
+    return params

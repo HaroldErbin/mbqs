@@ -306,27 +306,6 @@ def test_mbqs_class_compute_score() -> None:
     assert mbqs.history == approx_expected
 
 
-@pytest.mark.parametrize(
-    "data",
-    [
-        {"01": 2},
-        {(0, 1): 2.0},
-    ],
-)
-def test_mbqs_class_errors(data: dict) -> None:
-    """
-    Test MBQS class error cases.
-    """
-
-    error = (
-        "Invalid data type: must be a dict of system sizes to samples or "
-        "2-point correlations."
-    )
-
-    with pytest.raises(ValueError, match=error):
-        MBQS(data=data, J=1.0, threshold=0.1)
-
-
 def test_mbqs_class_extract_array() -> None:
     """
     Test MBQS class extract_array method.
