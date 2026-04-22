@@ -39,7 +39,9 @@ def json_decode_keys(data):
         Dictionary with decoded keys.
 
     """
-    conv = {}
+
+    def check_bitstring(k):
+        return k.isdecimal() and all(c in "01" for c in k)
 
     def convert_key(k):
         if k.isdecimal():
@@ -54,7 +56,7 @@ def json_decode_keys(data):
             k = tuple(map(convert_key, k[1:-1].split(", ")))
         elif k[0] == "'" and k[-1] == "'":
             # key is a string with redundant quotes, which must be removed
-            # this happens for element of a tuple
+            # this happens for elements of a tuple
             k = k[1:-1]
 
         return k
@@ -62,7 +64,9 @@ def json_decode_keys(data):
     if not isinstance(data, dict):
         return data
 
-    for k, v in data.items():
-        conv[convert_key(k)] = json_decode_keys(v)
-
-    return conv
+    if all(len(k) >= 2 and check_bitstring(k) for k in data.keys()):
+        # check if all keys are bitstrings; in that case, we keep them as strings
+        # we assume that length is at least 2 to avoid problems with 0 and 1
+        return {k: json_decode_keys(v) for k, v in data.items()}
+    else:
+        return {convert_key(k): json_decode_keys(v) for k, v in data.items()}

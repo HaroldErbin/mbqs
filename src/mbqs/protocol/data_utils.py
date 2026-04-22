@@ -46,6 +46,9 @@ def find_data_type(data: Mapping[str, Any] | Mapping[int, Any]) -> str:
     ):
         # keys are pairs of indices, values are correlation functions
         return "correlations"
+    elif "sz" in data.keys() or "szsz" in data.keys() or "szsz_c" in data.keys():
+        # keys are named of correlation functions
+        return "correlations_dict"
     elif all(isinstance(k, int) for k in data.keys()):
         # keys are system sizes
         # values must be dictionnary of the same type (samples or correlations)

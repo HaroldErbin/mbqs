@@ -64,7 +64,7 @@ def compute_exact_correlations(args):
     Compute correlation functions from bitstrings.
     """
 
-    L = args.L[0]
+    L = args.L
 
     if args.J is None and args.a is None:
         args.J = cast(float, ARGS_DEFAULT["J"])

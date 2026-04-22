@@ -7,6 +7,7 @@ import os
 from mbqs.cli.arguments import arg_parser
 from mbqs.cli.correlations import correlations_action
 from mbqs.cli.protocol import protocol_action
+from mbqs.cli.scorer import scorer_action
 
 
 def main() -> int:
@@ -25,7 +26,7 @@ def main() -> int:
         case "correlations":
             code = correlations_action(args)
         case "scorer":
-            raise NotImplementedError("Scorer action not implemented yet.")
+            code = scorer_action(args)
         case _:
             parser.print_help()
 

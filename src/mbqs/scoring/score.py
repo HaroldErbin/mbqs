@@ -181,6 +181,7 @@ class MBQS:
     score: int | dict[float, int] | None = None
     history: dict[int, Any] | None = None
     metric: float | dict[int, float] | None = None
+    metric_err: float | dict[int, float] = 0.0
     success: TestSuccess | dict[float, TestSuccess] | None = None
 
     data_type: str
@@ -192,9 +193,12 @@ class MBQS:
         | Mapping[str, Any]
         | Mapping[int, Corr2ptMap]
         | Mapping[int, BitstringMap],
-        data_errors: Corr2ptMap | Mapping[int, Corr2ptMap] | None = None,
+        data_errors: Corr2ptMap
+        | Mapping[int, Corr2ptMap]
+        | Mapping[str, Any]
+        | None = None,
         *,
-        J: float = 0.1,
+        J: float = 1.0,
         state: State | str = State.down,
         L: int | None = None,
         threshold: float | Sequence[float] = 0.1,
@@ -232,28 +236,44 @@ class MBQS:
 
             data_type = data_type.removeprefix("protocol_")
 
+        self.data_type = data_type
+
         match data_type:
             case "correlations":
-                data = cast(Corr2ptMap, data)
-                self.correlations = data
-                self.correlations_errors = data_errors
+                self.correlations = cast(Corr2ptMap, data)
+                self.correlations_errors = cast(Corr2ptMap, data_errors)
+
+            case "correlations_dict":
+                data_dict = cast(Mapping[str, Any], data)
+                if data_errors is not None:
+                    data_errors_dict = cast(Mapping[str, Any], data_errors)
+                    self.correlations_errors = cast(
+                        Corr2ptMap, data_errors_dict["szsz_c_err"]
+                    )
+                elif "szsz_c_err" in data_dict:
+                    self.correlations_errors = cast(Corr2ptMap, data_dict["szsz_c_err"])
+                else:
+                    self.correlations_errors = None
+
+                self.correlations = cast(Corr2ptMap, data_dict["szsz_c"])
+
+                self.data_type = "correlations"
 
             case "samples":
-                data = cast(BitstringMap, data)
-                self.samples = data
+                self.samples = cast(BitstringMap, data)
 
-                corr_obj = SampleCorrelations(data)
+                L = len(next(iter(self.samples.keys())))
+
+                corr_obj = SampleCorrelations(self.samples)
                 self.correlations = corr_obj.correlations["szsz_c"]
                 self.correlations_errors = corr_obj.correlations["szsz_c_err"]
 
             case "correlations_sequence":
-                data = cast(Mapping[int, Corr2ptMap], data)
-                self.correlations = data
-                self.correlations_errors = data_errors
+                self.correlations = cast(Mapping[int, Corr2ptMap], data)
+                self.correlations_errors = cast(Mapping[int, Corr2ptMap], data_errors)
 
             case "samples_sequence":
-                data = cast(Mapping[int, BitstringMap], data)
-                self.samples = data
+                self.samples = cast(Mapping[int, BitstringMap], data)
 
                 corr_obj = {L: SampleCorrelations(s) for L, s in self.samples.items()}
                 self.correlations = {
@@ -264,14 +284,9 @@ class MBQS:
                 }
 
             case _:
-                raise ValueError(
-                    "Invalid data type: must be a dict of system sizes to samples or "
-                    "2-point correlations."
-                )
+                raise ValueError("Invalid data type.")
 
-        self.data_type = data_type
-
-        if data_type in ("samples_sequence", "correlations_sequence"):
+        if self.data_type in ("samples_sequence", "correlations_sequence"):
             if L is not None:
                 raise ValueError("L should not be provided when data is a sequence.")
 
@@ -321,7 +336,7 @@ class MBQS:
         self.correlations = cast(Corr2ptMap, self.correlations)
         self.correlations_errors = cast(Corr2ptMap, self.correlations_errors)
 
-        self.metric = compute_metric(
+        result = compute_metric(
             self.correlations,
             self.correlations_errors,
             J=self.J,
@@ -330,8 +345,15 @@ class MBQS:
             method=method,
         )
 
+        if isinstance(result, tuple):
+            self.metric, self.metric_err = result
+        else:
+            self.metric = result
+            self.metric_err = 0.0
+
         self.success = compute_test_success(
             self.metric,
+            self.metric_err,
             threshold=self.threshold,
         )
 
@@ -351,6 +373,8 @@ class MBQS:
             summary["history"] = self.history
         else:
             summary["metric"] = self.metric
+            if self.metric_err != 0:
+                summary["metric_err"] = self.metric_err
             summary["success"] = self.success
             summary["L"] = self.L
 

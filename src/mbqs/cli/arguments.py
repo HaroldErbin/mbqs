@@ -42,7 +42,7 @@ def arg_parser():
     return parser
 
 
-def physical_arguments(parser, required=True):
+def physical_arguments(parser, required=True, single_L=False):
     """
     Add physical arguments to the parser.
     """
@@ -91,16 +91,27 @@ def physical_arguments(parser, required=True):
         """,
     )
 
-    parser.add_argument(
-        "-L",
-        type=int,
-        nargs="+",
-        required=required,
-        help="""
-        System size(s): number(s) of qubits.
-        Can be a single number or a list.
-        """,
-    )
+    if single_L:
+        parser.add_argument(
+            "-L",
+            type=int,
+            required=required,
+            help="""
+            System size: number of qubits.
+            Default: None.
+            """,
+        )
+    else:
+        parser.add_argument(
+            "-L",
+            type=int,
+            nargs="+",
+            required=required,
+            help="""
+            System size(s): number(s) of qubits.
+            Can be a single number or a list.
+            """,
+        )
 
     return parser
 
@@ -172,24 +183,6 @@ def protocol_arg_parser(subparsers, parents):
     return parser
 
 
-def scorer_arg_parser(subparsers, parents):
-    """
-    Set up the argument parser for the scorer action.
-    """
-
-    arg_parser = argparse.ArgumentParser(add_help=False)
-
-    parser = subparsers.add_parser(
-        "scorer",
-        description="""
-        Compute MBQS score.
-        """,
-        parents=parents + [arg_parser],
-    )
-
-    return parser
-
-
 def correlations_arg_parser(subparsers, parents):
     """
     Set up the argument parser for the correlations action.
@@ -208,8 +201,39 @@ def correlations_arg_parser(subparsers, parents):
         parents=parents + [arg_parser],
     )
 
-    physical_arguments(parser, required=False)
+    physical_arguments(parser, required=False, single_L=True)
     input_output_arguments(parser)
+
+    return parser
+
+
+def scorer_arg_parser(subparsers, parents):
+    """
+    Set up the argument parser for the scorer action.
+    """
+
+    arg_parser = argparse.ArgumentParser(add_help=False)
+
+    parser = subparsers.add_parser(
+        "scorer",
+        description="""
+        Compute MBQS score.
+        """,
+        parents=parents + [arg_parser],
+    )
+
+    parser.add_argument(
+        "--threshold",
+        type=float,
+        default=None,
+        help="""
+        Threshold for the MBQS score.
+        Default: None.
+        """,
+    )
+
+    physical_arguments(parser, required=False, single_L=True)
+    input_output_arguments(parser, input_required=True)
 
     return parser
 

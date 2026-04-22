@@ -72,6 +72,27 @@ mbqs protocol -a 7.75 -L 4
 mbqs protocol -J 1. -L {4..6} --json protocol.json
 ```
 
+- Evaluate the metric from correlations functions in a file:
+
+```bash
+# without parameters in file
+mbqs scorer -i examples/correlations_samples.json -L 3 --threshold 0.3
+# with parameters
+mbqs scorer -i examples/correlations_exact.json
+```
+
+- Evaluate the metric from samples in a file:
+
+```bash
+mbqs scorer -i examples/samples.json
+```
+
+- Evaluate the score for a file containing correlations functions for different system sizes:
+
+```bash
+mbqs scorer -i examples/correlations_sequence.json
+```
+
 Examples of json files can be found in the `examples` directory.
 
 
