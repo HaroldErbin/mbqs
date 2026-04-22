@@ -6,9 +6,7 @@ from collections.abc import Mapping
 from typing import Any, cast
 
 
-def find_data_type(
-    data: Mapping[str, Any] | Mapping[int, Any],
-) -> str | tuple[str, dict[str, float]]:
+def find_data_type(data: Mapping[str, Any] | Mapping[int, Any]) -> str:
     """
     Find type of protocol data.
 
@@ -30,7 +28,6 @@ def find_data_type(
 
     Returns:
         str: Type of data.
-        tuple[str, dict[str, float]]: Type of data and parameters.
 
     """
 
@@ -65,10 +62,32 @@ def find_data_type(
         data_type = "protocol"
         data = cast(dict[str, Any], data)
         if "correlations" in data.keys():
-            data_type += "_" + str(find_data_type(data.pop("correlations")))
+            data_type += "_" + str(find_data_type(data["correlations"]))
         elif "samples" in data.keys():
-            data_type += "_" + str(find_data_type(data.pop("samples")))
+            data_type += "_" + str(find_data_type(data["samples"]))
 
-        parameters = {**data}
+        return str(data_type)
 
-        return str(data_type), cast(dict[str, float], parameters)
+
+def find_protocol_parameters(
+    data: Mapping[str, Any] | Mapping[int, Any],
+) -> dict[str, float]:
+    """
+    Find protocol parameters from a data dict.
+    """
+
+    if not isinstance(data, dict):
+        raise TypeError("Data must be a dictionary.")
+
+    data = cast(dict[str, Any], data)
+
+    data_type = find_data_type(data)
+    if not data_type.startswith("protocol"):
+        return {}
+
+    if "correlations" in data.keys():
+        del data["correlations"]
+    elif "samples" in data.keys():
+        del data["samples"]
+
+    return {**data}
