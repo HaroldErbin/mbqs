@@ -128,18 +128,20 @@ mbqs scorer -i examples/correlations_sequence.json
 
 Examples of json files can be found in the `examples` directory.
 
-Autocompletion can be enabled for the `mbqs` command by running the following command:
+Autocompletion can be enabled for the `mbqs` command by running the following command
+(only for the current session):
 
 ```bash
 eval "$(register-python-argcomplete mbqs)"
 ```
 
-This requires to source the `_python-argcomplete` file which is provided by the package
-`argcomplete`. You can find the file in various locations depending on the installation
-method. For example, if you install `python3-argcomplete` on Ubuntu, the path to source
-is:
+To make it persistent (for example, for bash on Linux), you can execute the following
+commands:
 
-- `/etc/bash_completion.d/global-python-argcomplete`
+```bash
+mkdir -p ~/.local/share/bash-completion/completions
+register-python-argcomplete mbqs > ~/.local/share/bash-completion/completions/mbqs
+```
 
 
 ## Contributing
