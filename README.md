@@ -9,7 +9,7 @@ $\epsilon$.
 The MBQS metric is parametrized by an initial state $\psi$ and computed according to
 the following protocol:
 
-1. Setup a spin chain with $L$ spin-$\frac{1}{2}$ equally spaced on a $1d$ ring.
+1. Setup a spin chain with $L$ spin $\frac{1}{2}$ equally spaced on a $1d$ ring.
 2. Initialize the register with the state $\ket{\psi}$.
 3. Evolve the system (quench) with the Ising Hamiltonian at the critical point $g = 1$
    for a duration $t_*(L)$ (“surge time”).
@@ -158,7 +158,6 @@ make check
 make test
 ```
 
-## References
 
 [^1]: Erbin, H., Burdeau, P.-L., Bertrand, C., Ayral, T., & Misguich, G. (2026).
       *Many-body Quantum Score: a scalable benchmark for digital and analog quantum
