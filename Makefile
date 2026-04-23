@@ -3,6 +3,7 @@
 install-dev:
 	uv sync --extra dev
 	pre-commit install
+	eval "$(register-python-argcomplete mbqs)"
 
 check:
 	ruff check .

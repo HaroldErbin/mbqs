@@ -20,7 +20,7 @@ keywords = [
     "quantum simulations",
 ]
 
-dependencies = ["numpy", "pulser", "scipy"]
+dependencies = ["argcomplete", "numpy", "pulser", "scipy"]
 
 
 [project.urls]

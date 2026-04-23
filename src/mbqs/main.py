@@ -1,8 +1,13 @@
+#!/usr/bin/env python
+# PYTHON_ARGCOMPLETE_OK
+
 """
 Main entry point for the MBQS CLI.
 """
 
 import os
+
+import argcomplete
 
 from mbqs.cli.arguments import arg_parser
 from mbqs.cli.correlations import correlations_action
@@ -16,6 +21,7 @@ def main() -> int:
     """
 
     parser = arg_parser()
+    argcomplete.autocomplete(parser)
     args = parser.parse_args()
 
     code = os.EX_OK
