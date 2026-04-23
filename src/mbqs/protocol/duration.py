@@ -45,12 +45,16 @@ class Duration:
         self.J = J
         self.state = state
 
-    def surge_time(self, method: str = "qutip") -> float:
+    def surge_time(self, method: str = "qutip", rounding=False) -> float:
         """
         Compute the surge time.
         """
 
-        return self.compute_surge_time(self.L, self.J, self.state, method)
+        surge_time = self.compute_surge_time(self.L, self.J, self.state, method)
+        if rounding is True:
+            return round(surge_time, 3)
+        else:
+            return surge_time
 
     @property
     def lieb_robinson_time(self) -> float:
@@ -94,4 +98,4 @@ class Duration:
             case _:
                 raise ValueError(f"Unknown method to compute surge time: {method}")
 
-        return round(surge_time, 3)
+        return surge_time

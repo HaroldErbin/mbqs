@@ -5,7 +5,7 @@ Class to contain correlations at surge time.
 from mbqs.correlations.utils import convert_2pt_dict
 from mbqs.protocol.duration import Duration
 from mbqs.simulations import ising_qutip
-from mbqs.simulations.state import State
+from mbqs.simulations.state import State, StateType
 
 
 class SurgeCorrelations:
@@ -17,7 +17,7 @@ class SurgeCorrelations:
         self,
         *,
         J: float = 1.0,
-        state: State | str = State.down,
+        state: StateType = State.down,
         L: int,
         method: str = "qutip",
     ):

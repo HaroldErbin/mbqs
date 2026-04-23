@@ -11,7 +11,7 @@ from numpy.typing import NDArray
 
 from mbqs.correlations import SampleCorrelations
 from mbqs.protocol.data_utils import find_data_type, find_protocol_parameters
-from mbqs.simulations.state import State
+from mbqs.simulations.state import State, StateType
 from mbqs.types import BitstringMap, Corr2ptMap
 
 from .metric import compute_metric
@@ -90,7 +90,7 @@ def compute_score(
     data_errors: Mapping[int, Corr2ptMap] | None = None,
     *,
     J: float,
-    state: State | str = State.down,
+    state: StateType = State.down,
     threshold: float = 0.1,
     method: str = "qutip",
     stop_on_fail: bool = False,
@@ -103,7 +103,7 @@ def compute_score(
     data_errors: Mapping[int, Corr2ptMap] | None = None,
     *,
     J: float,
-    state: State | str = State.down,
+    state: StateType = State.down,
     threshold: Sequence[float],
     method: str = "qutip",
     stop_on_fail: bool = False,
@@ -181,7 +181,7 @@ class MBQS:
     correlations_errors: Corr2ptMap | Mapping[int, Corr2ptMap] | None
     samples: BitstringMap | Mapping[int, BitstringMap] | None
     J: float
-    state: State | str
+    state: StateType
     L: int | Sequence[int] | None
     threshold: float | Sequence[float]
 
@@ -206,7 +206,7 @@ class MBQS:
         | None = None,
         *,
         J: float = 1.0,
-        state: State | str = State.down,
+        state: StateType = State.down,
         L: int | None = None,
         threshold: float | Sequence[float] = 0.1,
     ):

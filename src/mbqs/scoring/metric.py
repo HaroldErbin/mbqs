@@ -9,7 +9,7 @@ import numpy as np
 from mbqs.correlations import SampleCorrelations
 from mbqs.simulations import ising_qutip
 from mbqs.simulations.lattice import get_antipodal_idx
-from mbqs.simulations.state import State
+from mbqs.simulations.state import State, StateType
 from mbqs.types import BitstringMap, Corr2ptMap, Metric
 
 
@@ -18,7 +18,7 @@ def compute_metric(
     data_err=None,
     *,
     J: float = 1.0,
-    state: State | str = State.down,
+    state: StateType = State.down,
     L: int,
     method: str = "qutip",
 ):
@@ -44,7 +44,7 @@ def metric_from_correlations(
     correlations_errors: None = None,
     *,
     J: float,
-    state: State | str,
+    state: StateType,
     L: int,
     method: str = "qutip",
 ) -> Metric: ...
@@ -56,7 +56,7 @@ def metric_from_correlations(
     correlations_errors: Corr2ptMap,
     *,
     J: float,
-    state: State | str,
+    state: StateType,
     L: int,
     method: str = "qutip",
 ) -> tuple[Metric, Metric]: ...
@@ -126,7 +126,7 @@ def metric_from_bitstring(
     bitstrings: BitstringMap,
     *,
     J: float = 1.0,
-    state: State | str = State.down,
+    state: StateType = State.down,
     L: int,
     method: str = "qutip",
 ) -> tuple[Metric, Metric]:

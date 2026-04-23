@@ -10,7 +10,7 @@ from mbqs.simulations.time_analysis import get_first_peak_idx
 
 from .lattice import get_antipodal_idx
 from .lieb_robinson import compute_lieb_robinson_time
-from .state import State
+from .state import State, StateType
 
 
 def sx(j: int, L: int) -> Qobj:
@@ -85,7 +85,7 @@ def state_plus(L):
     return state / state.norm()
 
 
-def select_state(L: int, state: State | str) -> Qobj:
+def select_state(L: int, state: StateType) -> Qobj:
     """
     Select the initial state.
     """
@@ -104,7 +104,7 @@ def select_state(L: int, state: State | str) -> Qobj:
 def make_quench(
     *,
     J: float = 1.0,
-    state: State | str = State.down,
+    state: StateType = State.down,
     L: int,
     duration: float,
     dt: float = 0.001,
@@ -151,7 +151,7 @@ def make_quench(
 
 
 def get_surge_time(
-    *, L: int, J: float = 1.0, state: State | str = State.down, dt: float = 0.001
+    *, L: int, J: float = 1.0, state: StateType = State.down, dt: float = 0.001
 ):
     """
     Compute the surge time for the Ising Hamiltonian.

@@ -6,6 +6,7 @@ from mbqs.simulations.state import State
 
 # J for a = 7.5
 J_75 = 1.2160498936625515
+ATOL = 1e-3
 
 
 @pytest.mark.parametrize(
@@ -23,17 +24,17 @@ def test_duration_init(L, J):
 
 def test_duration_properties_surge_time():
     duration = Duration(L=6, J=J_75)
-    assert np.isclose(duration.surge_time(), 1.4)
+    assert np.isclose(duration.surge_time(), 1.4, atol=ATOL)
 
 
 def test_duration_properties_lieb_robinson_time():
     duration = Duration(L=6, J=J_75)
-    assert np.isclose(duration.lieb_robinson_time, 6 / (4 * J_75), atol=1e-3)
+    assert np.isclose(duration.lieb_robinson_time, 6 / (4 * J_75), atol=ATOL)
 
 
 def test_duration_properties_qutip_surge_time():
     duration = Duration(L=6, J=J_75)
-    assert np.isclose(duration.qutip_surge_time, 1.4)
+    assert np.isclose(duration.qutip_surge_time, 1.4, atol=ATOL)
 
 
 def test_compute_surge_time_invalid_method():
@@ -43,7 +44,7 @@ def test_compute_surge_time_invalid_method():
 
 @pytest.mark.xfail(reason="Not implemented yet")
 def test_duration_properties_fermions_surge_time():
-    assert np.isclose(Duration(L=6, J=J_75).fermions_surge_time, 1.4)
+    assert np.isclose(Duration(L=6, J=J_75).fermions_surge_time, 1.4, atol=ATOL)
 
 
 @pytest.mark.parametrize(
@@ -51,7 +52,7 @@ def test_duration_properties_fermions_surge_time():
     [
         (3, J_75, 0.831),
         (4, J_75, 1.064),
-        (5, J_75, 1.235),
+        (5, J_75, 1.234),
         (6, J_75, 1.4),
         (7, J_75, 1.585),
         (8, J_75, 1.724),
@@ -62,7 +63,7 @@ def test_compute_surge_time_down(L, J, expected_surge_time):
 
     if L <= 14:
         duration = Duration.compute_surge_time(L, J, state=State.down)
-        assert np.isclose(duration, expected_surge_time, atol=1e-3)
+        assert np.isclose(duration, expected_surge_time, atol=ATOL)
     else:
         pytest.skip("L > 14, too long to compute")
 
@@ -83,6 +84,6 @@ def test_compute_surge_time_plus(L, J, expected_surge_time):
 
     if L <= 14:
         duration = Duration.compute_surge_time(L, J, state=State.plus)
-        assert np.isclose(duration, expected_surge_time, atol=1e-3)
+        assert np.isclose(duration, expected_surge_time, atol=ATOL)
     else:
         pytest.skip("L > 14, too long to compute")
