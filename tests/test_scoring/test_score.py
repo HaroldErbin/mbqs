@@ -294,6 +294,150 @@ def test_mbqs_class_init_samples() -> None:
     assert mbqs.correlations == {3: {(0, 1): np.float64(0.3083916666666667)}}
 
 
+def test_mbqs_init_protocol_errors() -> None:
+    """
+    Test MBQS initialization with invalid protocol data.
+    """
+
+    with pytest.raises(
+        ValueError, match="Data must contain either correlations or samples"
+    ):
+        MBQS(data={"J": 1.0})
+
+
+def test_mbqs_init_protocol_prefixed_samples() -> None:
+    """
+    Test MBQS initialization with protocol-prefixed samples.
+    """
+
+    data = {
+        "J": J_75,
+        "samples": samples,
+    }
+
+    mbqs = MBQS(data=data)
+
+    assert mbqs.J == J_75
+    assert mbqs.data_type == "samples_sequence"
+
+
+def test_mbqs_init_correlations_dict_internal_err() -> None:
+    """
+    Test MBQS initialization with correlations_dict format including error dict.
+    """
+
+    data = {
+        "szsz_c": approx_corr[3],
+        "szsz_c_err": {k: 0.05 for k in approx_corr[3].keys()},
+    }
+    mbqs = MBQS(data=data, L=3)
+
+    assert mbqs.correlations_errors == data["szsz_c_err"]
+
+
+def test_mbqs_single_samples() -> None:
+    """
+    Test MBQS initialization with single-size samples.
+    """
+
+    mbqs = MBQS(data=samples[3], J=J_75)
+
+    assert mbqs.data_type == "samples"
+    assert mbqs.L == 3
+    assert mbqs.correlations is not None
+    assert mbqs.correlations_errors is not None
+
+
+def test_mbqs_init_correlations_dict_no_err() -> None:
+    """
+    Test MBQS initialization with correlations_dict without errors.
+    """
+
+    data = {"szsz_c": approx_corr[3]}
+    mbqs = MBQS(data=data, L=3)
+
+    assert mbqs.correlations == approx_corr[3]
+    assert mbqs.correlations_errors is None
+
+
+def test_mbqs_single_metric_with_err() -> None:
+    """
+    Test MBQS.compute_metric with errors and summary output.
+    """
+
+    data = {
+        (0, 1): 0.5,
+    }
+    errors = {
+        (0, 1): 0.01,
+    }
+
+    mbqs = MBQS(data=data, data_errors=errors, L=3, J=J_75)
+    mbqs.compute_metric()
+    summary = mbqs.summary()
+
+    assert mbqs.metric_err != 0
+    assert "metric_err" in summary
+    assert summary["metric_err"] == mbqs.metric_err
+
+
+def test_mbqs_init_protocol_prefixed_correlations() -> None:
+    """
+    Test MBQS initialization with protocol-prefixed correlations.
+    """
+
+    data = {
+        "J": J_75,
+        "correlations": approx_corr,
+    }
+    mbqs = MBQS(data=data)
+
+    assert mbqs.J == J_75
+    assert mbqs.data_type == "correlations_sequence"
+    assert mbqs.correlations == approx_corr
+
+
+def test_mbqs_init_correlations_dict_explicit() -> None:
+    """
+    Test MBQS initialization with correlations_dict and explicit errors.
+    """
+
+    data = {"szsz_c": approx_corr[3]}
+    errors = {"szsz_c_err": {k: 0.02 for k in approx_corr[3].keys()}}
+    mbqs = MBQS(data=data, data_errors=errors, L=3)
+
+    assert mbqs.correlations == approx_corr[3]
+    assert mbqs.correlations_errors == errors["szsz_c_err"]
+
+
+def test_mbqs_init_l_validation() -> None:
+    """
+    Test MBQS initialization L validation.
+    """
+
+    # L provided for sequence
+    with pytest.raises(
+        ValueError, match="L should not be provided when data is a sequence"
+    ):
+        MBQS(data=approx_corr, L=6)
+
+    # L missing for non-sequence
+    with pytest.raises(
+        ValueError, match="L must be provided when data is not a sequence"
+    ):
+        MBQS(data=approx_corr[6])
+
+
+def test_mbqs_init_invalid_data_type() -> None:
+    """
+    Test MBQS initialization with invalid data type in sequence.
+    """
+
+    data = {3: {"invalid": 1.0}}
+    with pytest.raises(ValueError, match="Invalid data type"):
+        MBQS(data=data)  # ty:ignore[invalid-argument-type]
+
+
 def test_mbqs_class_compute_score() -> None:
     """
     Test MBQS class compute_score method.
@@ -326,7 +470,40 @@ def test_mbqs_class_extract_array() -> None:
     )
 
 
-def test_mbqs_summary() -> None:
+def test_mbqs_compute_metric_error() -> None:
+    """
+    Test MBQS.compute_metric error for sequence data.
+    """
+
+    mbqs = MBQS(data=approx_corr, J=1.0)
+    with pytest.raises(TypeError, match="Data type must not be a sequence"):
+        mbqs.compute_metric()
+
+
+def test_mbqs_compute_score_error() -> None:
+    """
+    Test MBQS.compute_score error for non-sequence data.
+    """
+
+    mbqs = MBQS(data=approx_corr[6], L=6, J=J_75)
+    with pytest.raises(TypeError, match="Data type must be a sequence"):
+        mbqs.compute_score()
+
+
+def test_mbqs_summary_single_size() -> None:
+    """
+    Test MBQS evaluation for single-size data summary.
+    """
+
+    mbqs = MBQS(data=approx_corr[6], L=6, J=J_75)
+    mbqs.compute_metric()
+    summary = mbqs.summary()
+
+    assert summary["metric"] == mbqs.metric
+    assert summary["L"] == 6
+
+
+def test_mbqs_summary_sequence() -> None:
     """
     Test MBQS summary method.
     """

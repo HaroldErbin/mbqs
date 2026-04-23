@@ -49,6 +49,7 @@ def physical_arguments(parser, required=True, single_L=False):
 
     parser.add_argument(
         "--state",
+        "-s",
         type=str,
         choices=["down", "plus"],
         default=ARGS_DEFAULT["state"],

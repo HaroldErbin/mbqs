@@ -62,6 +62,7 @@ from mbqs.protocol.data_utils import find_data_type, find_protocol_parameters
             },
             "protocol_correlations_sequence",
         ),
+        ({"sz": 1.0}, "correlations_dict"),
     ],
 )
 def test_find_data_type(data, expected_type):
@@ -74,6 +75,7 @@ def test_find_data_type(data, expected_type):
         ("test", TypeError),
         ({1: 1, "correlations": {(0, 1): 1}}, ValueError),
         ({1: 1, "samples": {(0, 1): 1}}, ValueError),
+        ({3: {"01": 10}, 4: {(0, 1): 0.5}}, ValueError),
     ],
 )
 def test_find_data_type_raises_error(data, expected_exception):
@@ -144,3 +146,11 @@ def test_find_data_type_raises_error(data, expected_exception):
 )
 def test_find_protocol_parameters(data, expected_parameters):
     assert find_protocol_parameters(data) == expected_parameters
+
+
+def test_find_protocol_parameters_raises_error():
+    """
+    Test find_protocol_parameters raises TypeError for non-dict input.
+    """
+    with pytest.raises(TypeError, match="Data must be a dictionary"):
+        find_protocol_parameters("test")  # ty:ignore[invalid-argument-type]

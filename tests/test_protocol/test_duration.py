@@ -31,6 +31,21 @@ def test_duration_properties_lieb_robinson_time():
     assert np.isclose(duration.lieb_robinson_time, 6 / (4 * J_75), atol=1e-3)
 
 
+def test_duration_properties_qutip_surge_time():
+    duration = Duration(L=6, J=J_75)
+    assert np.isclose(duration.qutip_surge_time, 1.4)
+
+
+def test_compute_surge_time_invalid_method():
+    with pytest.raises(ValueError, match="Unknown method"):
+        Duration.compute_surge_time(L=3, J=J_75, method="invalid")
+
+
+@pytest.mark.xfail(reason="Not implemented yet")
+def test_duration_properties_fermions_surge_time():
+    assert np.isclose(Duration(L=6, J=J_75).fermions_surge_time, 1.4)
+
+
 @pytest.mark.parametrize(
     ("L", "J", "expected_surge_time"),
     [

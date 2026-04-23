@@ -38,7 +38,7 @@ def _display_text(data):
         text += "\n\n## History\n"
 
         for L, dic in data["history"].items():
-            text += f"L = {L}\n"
+            text += f"## L = {L}\n"
             text += f"- {_metric_text(**dic)}\n"
             text += f"- {success_text.format(**dic)}\n"
             text += "\n"
@@ -81,7 +81,6 @@ def scorer_action(args):
     else:
         mbqs.compute_metric()
 
-    print(mbqs.summary())
     print(_display_text(mbqs.summary()))
 
     return os.EX_OK

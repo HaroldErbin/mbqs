@@ -90,14 +90,15 @@ def select_state(L: int, state: State | str) -> Qobj:
     Select the initial state.
     """
 
-    state = State(state)
+    try:
+        state = State(state)
+    except ValueError as e:
+        raise ValueError(f"Cannot create state {state}.") from e
 
-    if state == State.down:
-        return state_down(L)
-    elif state == State.plus:
+    if state == State.plus:
         return state_plus(L)
-    else:
-        raise ValueError(f"Cannot create state {state}.")
+
+    return state_down(L)
 
 
 def make_quench(

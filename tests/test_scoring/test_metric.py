@@ -117,6 +117,29 @@ def test_compute_metric(data, expected):
 
 
 def test_compute_metric_invalid_type():
-    """Test compute_metric raises ValueError for invalid data key type."""
+    """
+    Test compute_metric raises ValueError for invalid data key type.
+    """
+
     with pytest.raises(ValueError, match="Invalid data type"):
         compute_metric({1: 2}, J=J_75, L=L, state="down")
+
+
+def test_metric_from_correlations_missing_pairs():
+    """
+    Test metric_from_correlations raises ValueError for missing pairs.
+    """
+
+    with pytest.raises(ValueError, match="Correlations are not defined"):
+        metric_from_correlations({(0, 1): 0.1}, J=J_75, L=5, state="down")
+
+
+def test_metric_from_correlations_invalid_method():
+    """
+    Test metric_from_correlations raises ValueError for invalid method.
+    """
+
+    with pytest.raises(ValueError, match="Method invalid is not implemented"):
+        metric_from_correlations(
+            theory_correlations, J=J_75, L=5, state="down", method="invalid"
+        )

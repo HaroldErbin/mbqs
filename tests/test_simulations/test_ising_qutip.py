@@ -1,6 +1,7 @@
 import numpy as np
 import pytest
 import qutip
+from qutip import Qobj
 
 from mbqs.simulations import ising_qutip
 from mbqs.simulations.state import State
@@ -68,16 +69,42 @@ def test_observables(antipodal_only: bool) -> None:
 
 
 @pytest.mark.parametrize(
-    "L, expected",
+    "L, state, expected",
     [
-        (3, 0.831),
-        (6, 1.4),
+        (2, State.down, ising_qutip.state_down(2)),
+        (2, State.plus, ising_qutip.state_plus(2)),
+        (2, "down", ising_qutip.state_down(2)),
     ],
 )
-def test_get_surge_time(L: int, expected: float) -> None:
+def test_select_state(L: int, state: State, expected: Qobj) -> None:
     """
-    Test get_surge_time function for L=3 and L=6.
+    Test select_state function.
     """
 
-    res = ising_qutip.get_surge_time(L=L, J=J_75, state=State.down)
+    assert ising_qutip.select_state(L, state) == expected
+
+
+def test_select_state_error() -> None:
+    """
+    Test select_state function.
+    """
+
+    with pytest.raises(ValueError, match="Cannot create state invalid."):
+        ising_qutip.select_state(L=2, state="invalid")
+
+
+@pytest.mark.parametrize(
+    "L, J, state, expected",
+    [
+        (3, J_75, State.down, 0.831),
+        (6, J_75, State.down, 1.4),
+        (3, J_75, State.plus, 0.646),
+    ],
+)
+def test_get_surge_time(L: int, J: float, state: State, expected: float) -> None:
+    """
+    Test get_surge_time function.
+    """
+
+    res = ising_qutip.get_surge_time(L=L, J=J, state=state)
     assert np.isclose(res, expected, atol=1e-3)

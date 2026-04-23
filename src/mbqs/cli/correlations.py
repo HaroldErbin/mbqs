@@ -12,19 +12,23 @@ from mbqs.correlations import SampleCorrelations, SurgeCorrelations
 from mbqs.json_utils import json_encode_keys
 
 
-def _display_corr(corr):
+def _display_corr(corr, is_theory=False):
     """
     Display correlation functions.
 
     Args:
         corr: Dictionary containing the correlation functions.
+        is_theory: Whether the correlations have been computed using a simulation.
 
     Returns:
         str: Formatted string containing the correlation functions.
 
     """
 
-    text = "# Correlations\n\n"
+    text = "# Correlations"
+    if is_theory is True:
+        text += " (theory)"
+    text += "\n\n"
 
     for key, values in corr.items():
         if key.endswith("_err"):
@@ -107,10 +111,12 @@ def correlations_action(args) -> int:
 
     if args.input is not None:
         results = compute_correlations_from_samples(args)
+        is_theory = False
     else:
         if args.L is None:
             raise ValueError("System size `-L` must be provided.")
         results = compute_exact_correlations(args)
+        is_theory = True
 
     if display_on_cli is True:
         if "correlations" in results:
@@ -118,7 +124,7 @@ def correlations_action(args) -> int:
         else:
             corr = results
 
-        print(_display_corr(corr))
+        print(_display_corr(corr, is_theory))
 
     if args.output is not None:
         with open(args.output, "w") as f:
