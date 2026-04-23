@@ -1,12 +1,18 @@
 # MBQS: Many-Body Quantum Score – A scalable benchmark for digital and analog quantum processors
 
-This packages provides a set of tools to compute the Many-Body Quantum Score (MBQS), which is designed to benchmark the performance of quantum processors in simulating many-body quantum systems [arXiv:[2601.03461](https://arxiv.org/abs/2601.03461)]. The score is obtained by comparing a given metric, called $P_2(L)$, with a threshold $\epsilon$.
+This packages provides a set of tools to compute the Many-Body Quantum Score (MBQS),
+which is designed to benchmark the performance of quantum processors in simulating
+many-body quantum systems [arXiv:[2601.03461](https://arxiv.org/abs/2601.03461)][^1].
+The score is obtained by comparing a given metric, called $P_2(L)$, with a threshold
+$\epsilon$.
 
-The MBQS metric is parametrized by an initial state $\psi$ and computed according to the following protocol:
+The MBQS metric is parametrized by an initial state $\psi$ and computed according to
+the following protocol:
 
 1. Setup a spin chain with $L$ spin-$\frac{1}{2}$ equally spaced on a $1d$ ring.
 2. Initialize the register with the state $\ket{\psi}$.
-3. Evolve the system (quench) with the Ising Hamiltonian at the critical point $g = 1$ for a duration $t_*(L)$ (“surge time”).
+3. Evolve the system (quench) with the Ising Hamiltonian at the critical point $g = 1$
+   for a duration $t_*(L)$ (“surge time”).
 4. Perform measurements $\{ \sigma^z_i \}$ and compute the connected 2-point functions:
 
   $$
@@ -15,7 +21,8 @@ The MBQS metric is parametrized by an initial state $\psi$ and computed accordin
       := \Braket{\sigma^z_1 \sigma^z_\ell} - \Braket{\sigma^z_1} \Braket{\sigma^z_\ell}.
   $$
 
-5.  Compute the metric (average relative error with respect to the theoretical values in Ising model):
+5.  Compute the metric (average relative error with respect to the theoretical values
+    in Ising model):
 
   $$
   P_2(L)
@@ -23,7 +30,9 @@ The MBQS metric is parametrized by an initial state $\psi$ and computed accordin
           \left| \frac{g^{(2) \text{th}}_{\ell}(t_\ast) - g^{(2) \text{exp}}_{\ell}(t_\ast)}{g^{(2) \text{th}}_{\ell}(t_\ast)} \right|.
   $$
 
-The MBQS score S with the initial state $\psi$ corresponds to the largest problem size $L$ reached before failing the test with a threshold $\epsilon$, but excluding system sizes below some cut-off:
+The MBQS score S with the initial state $\psi$ corresponds to the largest problem
+size $L$ reached before failing the test with a threshold $\epsilon$, but excluding
+system sizes below some cut-off:
 
 $$
 S
@@ -41,11 +50,18 @@ In this package, we provide the evaluation for the folloling initial states:
 - $\ket{+ \cdots +}$
 - $\ket{\downarrow \cdots \downarrow}$
 
-The surge time is defined to be the time at which the antipodal connected 2-point function is maximum. The only exception is for $L = 3$ and with the down state: it is defined to be the time for which the 1-point function is maximum (because the 2-point function has a large plateau).
+The surge time is defined to be the time at which the antipodal connected 2-point
+function is maximum. The only exception is for $L = 3$ and with the down state: it is
+defined to be the time for which the 1-point function is maximum (because the 2-point
+function has a large plateau).
 
-> [!WARNING] The definition of the surge time for L = 3 is different compared to the original paper.
+> [!WARNING]
+> The definition of the surge time for L = 3 is different compared to the original
+> paper.
 
 ## Usage
+
+### Command-line interface
 
 - Display in console the parameters needed to run the protocol for a given system size:
 
@@ -53,23 +69,39 @@ The surge time is defined to be the time at which the antipodal connected 2-poin
 mbqs protocol -J 1. -L 4
 ```
 
-- Display in console the parameters needed to run the protocol for several system sizes:
+- Display in console the parameters needed to run the protocol for several system
+  sizes:
 
 ```bash
 mbqs protocol -J 1. -L {4..6}
 ```
 
-- Parameters for running the protocol on an neutral atom analog quantum simulator can be added using the `--include-rydberg` flag or using the interatomic distance as a parameter instead of the coupling constant:
+- Parameters for running the protocol on an neutral atom analog quantum simulator can
+  be added using the `--include-rydberg` flag or using the interatomic distance as a
+  parameter instead of the coupling constant:
 
 ```bash
 mbqs protocol -J 1. -L 4 --include-rydberg
 mbqs protocol -a 7.75 -L 4
 ```
 
-- Save a json file with the protocol parameters (use `--verbose` to also display in the console):
+- Save a json file with the protocol parameters (use `--verbose` to also display in
+  the console):
 
 ```bash
 mbqs protocol -J 1. -L {4..6} --json protocol.json
+```
+
+- Compute the theoretical correlations at the surge time:
+
+```bash
+mbqs correlations -L 3
+```
+
+- Compute the correlations from a file of samples:
+
+```bash
+mbqs correlations -i samples.json
 ```
 
 - Evaluate the metric from correlations functions in a file:
@@ -87,13 +119,27 @@ mbqs scorer -i examples/correlations_exact.json
 mbqs scorer -i examples/samples.json
 ```
 
-- Evaluate the score for a file containing correlations functions for different system sizes:
+- Evaluate the score for a file containing correlations functions for different system
+  sizes:
 
 ```bash
 mbqs scorer -i examples/correlations_sequence.json
 ```
 
 Examples of json files can be found in the `examples` directory.
+
+Autocompletion can be enabled for the `mbqs` command by running the following command:
+
+```bash
+eval "$(register-python-argcomplete mbqs)"
+```
+
+This requires to source the `_python-argcomplete` file which is provided by the package
+`argcomplete`. You can find the file in various locations depending on the installation
+method. For example, if you install `python3-argcomplete` on Ubuntu, the path to source
+is:
+
+- `/etc/bash_completion.d/global-python-argcomplete`
 
 
 ## Contributing
@@ -114,4 +160,7 @@ make test
 
 ## References
 
-- *Many-body Quantum Score: a scalable benchmark for digital and analog quantum processors and first test on a commercial neutral atom device*. H. Erbin, P.-L. Burdeau, C. Bertrand, T. Ayral, and G. Misguich. arXiv:[2601.03461](https://arxiv.org/abs/2601.03461)
+[^1]: Erbin, H., Burdeau, P.-L., Bertrand, C., Ayral, T., & Misguich, G. (2026).
+      *Many-body Quantum Score: a scalable benchmark for digital and analog quantum
+      processors and first test on a commercial neutral atom device*. arXiv:
+      [2601.03461](https://arxiv.org/abs/2601.03461)
