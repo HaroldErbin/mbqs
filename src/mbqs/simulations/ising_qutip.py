@@ -6,7 +6,7 @@ import numpy as np
 import qutip
 from qutip import Qobj, basis, sesolve, tensor
 
-from mbqs.simulations.time_analysis import get_first_peak_idx
+from mbqs.simulations.time_analysis import get_first_peak_time
 
 from .lattice import get_antipodal_idx
 from .lieb_robinson import compute_lieb_robinson_time
@@ -120,8 +120,8 @@ def make_quench(
 
     if antipodal_only is True:
         # compute observable only in a window around the approximated surge time
-        if L <= 4:
-            factor = 0.7
+        if L <= 5:
+            factor = 0.3
         else:
             factor = 0.1
 
@@ -151,7 +151,12 @@ def make_quench(
 
 
 def get_surge_time(
-    *, L: int, J: float = 1.0, state: StateType = State.down, dt: float = 0.001
+    *,
+    L: int,
+    J: float = 1.0,
+    state: StateType = State.down,
+    dt: float = 0.001,
+    interpolate=True,
 ):
     """
     Compute the surge time for the Ising Hamiltonian.
@@ -165,8 +170,8 @@ def get_surge_time(
 
     if L <= 3 and state == State.down:
         # szsz_c has a plateau for L = 3, so define peak time using 1-point function
-        idx = get_first_peak_idx(obs["sz"])
+        surge_time = get_first_peak_time(times, obs["sz"], interpolate=True)
     else:
-        idx = get_first_peak_idx(obs["szsz_c"])
+        surge_time = get_first_peak_time(times, obs["szsz_c"], interpolate=True)
 
-    return times[idx]
+    return surge_time
