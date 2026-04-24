@@ -40,7 +40,6 @@ class SurgeCorrelations:
         self.duration = Duration(J=J, L=L, state=state)
 
         quench_results = ising_qutip.make_quench(
-            J=J,
             state=state,
             L=L,
             duration=self.surge_time,

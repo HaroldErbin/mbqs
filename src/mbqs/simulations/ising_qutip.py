@@ -50,15 +50,15 @@ def observables(L: int, antipodal_only: bool = False) -> dict[str, Qobj]:
     }
 
 
-def ising_hamiltonian(J, L):
+def ising_hamiltonian(L):
     """
     Ising Hamiltonian at the critical point.
     """
 
     H = (
-        J * sum(sz(i, L) @ sz(i + 1, L) for i in range(L - 1))
-        + J * sum(sx(i, L) for i in range(L))
-        + J * sz(0, L) * sz(L - 1, L)
+        sum(sz(i, L) @ sz(i + 1, L) for i in range(L - 1))
+        + sum(sx(i, L) for i in range(L))
+        + sz(0, L) @ sz(L - 1, L)
     )
 
     return H
@@ -103,7 +103,6 @@ def select_state(L: int, state: StateType) -> Qobj:
 
 def make_quench(
     *,
-    J: float = 1.0,
     state: StateType = State.down,
     L: int,
     duration: float,
@@ -115,15 +114,16 @@ def make_quench(
     """
 
     psi = select_state(L, state)
-    H = ising_hamiltonian(J, L)
+    H = ising_hamiltonian(L)
     ops = observables(L, antipodal_only)
 
     if antipodal_only is True:
         # compute observable only in a window around the approximated surge time
-        if L <= 5:
-            factor = 0.3
+        # this should be a function of L
+        if L <= 6:
+            factor = 0.6
         else:
-            factor = 0.1
+            factor = 0.2
 
         window = 2 * factor * duration
 
@@ -156,7 +156,7 @@ def get_surge_time(
     J: float = 1.0,
     state: StateType = State.down,
     dt: float = 0.001,
-    interpolate=True,
+    interpolate=False,
 ):
     """
     Compute the surge time for the Ising Hamiltonian.
@@ -165,13 +165,14 @@ def get_surge_time(
     duration = compute_lieb_robinson_time(L, J)
 
     times, obs = make_quench(
-        J=J, state=state, L=L, duration=duration, dt=dt, antipodal_only=True
+        state=state, L=L, duration=duration, dt=dt, antipodal_only=True
     )
 
     if L <= 3 and state == State.down:
         # szsz_c has a plateau for L = 3, so define peak time using 1-point function
-        surge_time = get_first_peak_time(times, obs["sz"], interpolate=True)
+        surge_time = get_first_peak_time(times, obs["sz"], interpolate=interpolate)
     else:
-        surge_time = get_first_peak_time(times, obs["szsz_c"], interpolate=True)
+        surge_time = get_first_peak_time(times, obs["szsz_c"], interpolate=interpolate)
 
-    return surge_time
+    print(surge_time)
+    return surge_time / J

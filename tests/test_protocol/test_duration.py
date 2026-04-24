@@ -56,16 +56,12 @@ def test_duration_properties_fermions_surge_time():
         (6, J_75, 1.4),
         (7, J_75, 1.585),
         (8, J_75, 1.724),
-        (20, J_75, 4.495),
     ],
 )
 def test_compute_surge_time_down(L, J, expected_surge_time):
 
-    if L <= 14:
-        duration = Duration.compute_surge_time(L, J, state=State.down)
-        assert np.isclose(duration, expected_surge_time, atol=ATOL)
-    else:
-        pytest.skip("L > 14, too long to compute")
+    duration = Duration.compute_surge_time(L, J, state=State.down)
+    assert np.isclose(duration, expected_surge_time, atol=ATOL)
 
 
 @pytest.mark.parametrize(
@@ -75,15 +71,11 @@ def test_compute_surge_time_down(L, J, expected_surge_time):
         (4, J_75, 0.928),
         (5, J_75, 1.153),
         (6, J_75, 1.359),
-        (7, J_75, 1.598),
+        (7, J_75, 1.597),
         (8, J_75, 1.819),
-        (20, J_75, 4.208),
     ],
 )
 def test_compute_surge_time_plus(L, J, expected_surge_time):
 
-    if L <= 14:
-        duration = Duration.compute_surge_time(L, J, state=State.plus)
-        assert np.isclose(duration, expected_surge_time, atol=ATOL)
-    else:
-        pytest.skip("L > 14, too long to compute")
+    duration = Duration.compute_surge_time(L, J, state=State.plus)
+    assert np.isclose(duration, expected_surge_time, atol=ATOL)

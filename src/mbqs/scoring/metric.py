@@ -17,7 +17,6 @@ def compute_metric(
     data,
     data_err=None,
     *,
-    J: float = 1.0,
     state: StateType = State.down,
     L: int,
     method: str = "qutip",
@@ -29,11 +28,9 @@ def compute_metric(
     first_key = next(iter(data))
 
     if isinstance(first_key, str):
-        return metric_from_bitstring(data, J=J, state=state, L=L, method=method)
+        return metric_from_bitstring(data, state=state, L=L, method=method)
     elif isinstance(first_key, tuple):
-        return metric_from_correlations(
-            data, data_err, J=J, state=state, L=L, method=method
-        )
+        return metric_from_correlations(data, data_err, state=state, L=L, method=method)
     else:
         raise ValueError(f"Invalid data type: {type(first_key)}")
 
@@ -43,7 +40,6 @@ def metric_from_correlations(
     correlations: Corr2ptMap,
     correlations_errors: None = None,
     *,
-    J: float,
     state: StateType,
     L: int,
     method: str = "qutip",
@@ -55,7 +51,6 @@ def metric_from_correlations(
     correlations: Corr2ptMap,
     correlations_errors: Corr2ptMap,
     *,
-    J: float,
     state: StateType,
     L: int,
     method: str = "qutip",
@@ -66,7 +61,6 @@ def metric_from_correlations(
     correlations,
     correlations_errors=None,
     *,
-    J=1.0,
     state=State.down,
     L,
     method="qutip",
@@ -88,10 +82,9 @@ def metric_from_correlations(
 
     match method:
         case "qutip":
-            duration = ising_qutip.get_surge_time(L=L, J=J, state=state, dt=0.001)
+            duration = ising_qutip.get_surge_time(L=L, J=1.0, state=state, dt=0.001)
 
             _, theory_correlations = ising_qutip.make_quench(
-                J=J,
                 state=state,
                 L=L,
                 duration=duration,
@@ -125,7 +118,6 @@ def metric_from_correlations(
 def metric_from_bitstring(
     bitstrings: BitstringMap,
     *,
-    J: float = 1.0,
     state: StateType = State.down,
     L: int,
     method: str = "qutip",
@@ -139,7 +131,6 @@ def metric_from_bitstring(
     return metric_from_correlations(
         samples_corr.correlations["szsz_c"],
         samples_corr.correlations["szsz_c_err"],
-        J=J,
         state=state,
         L=L,
         method=method,

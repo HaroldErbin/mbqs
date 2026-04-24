@@ -8,6 +8,7 @@ from mbqs.simulations.state import State
 
 # Constant for surge time testing
 J_75 = 1.2160498936625515
+ATOL = 1e-3
 
 
 def test_sx() -> None:
@@ -94,17 +95,40 @@ def test_select_state_error() -> None:
 
 
 @pytest.mark.parametrize(
-    "L, J, state, expected",
+    ("L", "J", "expected"),
     [
-        (3, J_75, State.down, 0.831),
-        (6, J_75, State.down, 1.4),
-        (3, J_75, State.plus, 0.646),
+        (3, J_75, 0.831),
+        (4, J_75, 1.064),
+        (5, J_75, 1.234),
+        (6, J_75, 1.4),
+        (7, J_75, 1.585),
+        (8, J_75, 1.724),
     ],
 )
-def test_get_surge_time(L: int, J: float, state: State, expected: float) -> None:
+def test_get_surge_time_down(L: int, J: float, expected: float) -> None:
     """
     Test get_surge_time function.
     """
 
-    res = ising_qutip.get_surge_time(L=L, J=J, state=state)
-    assert np.isclose(res, expected, atol=1e-3)
+    res = ising_qutip.get_surge_time(L=L, J=J, state=State.down)
+    assert np.isclose(res, expected, atol=ATOL)
+
+
+@pytest.mark.parametrize(
+    ("L", "J", "expected"),
+    [
+        (3, J_75, 0.646),
+        (4, J_75, 0.928),
+        (5, J_75, 1.153),
+        (6, J_75, 1.359),
+        (7, J_75, 1.597),
+        (8, J_75, 1.819),
+    ],
+)
+def test_get_surge_time_plus(L: int, J: float, expected: float) -> None:
+    """
+    Test get_surge_time function.
+    """
+
+    res = ising_qutip.get_surge_time(L=L, J=J, state=State.plus)
+    assert np.isclose(res, expected, atol=ATOL)

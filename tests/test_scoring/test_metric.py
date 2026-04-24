@@ -12,7 +12,7 @@ ATOL = 1e-3
 L = 5
 J_75 = 1.2160498936625515
 
-theory_correlations = {(0, 1): 0.43926304, (0, 2): 0.41055844}
+theory_correlations = {(0, 1): 0.439352478, (0, 2): 0.410561206}
 
 samples = {
     "00000": 1929,
@@ -60,30 +60,30 @@ correlations = {
 
 
 @pytest.mark.parametrize(
-    ("L", "J", "correlations", "expected"),
+    ("L", "correlations", "expected"),
     [
-        (5, J_75, theory_correlations, 0.0),
-        (5, J_75, correlations["szsz_c"], 0.255),
+        (5, theory_correlations, 0.0),
+        (5, correlations["szsz_c"], 0.255),
     ],
 )
-def test_compute_metric_qutip(L, J, correlations, expected):
-    metric = metric_from_correlations(correlations, J=J, L=L, state="down")
+def test_compute_metric_qutip(L, correlations, expected):
+    metric = metric_from_correlations(correlations, L=L, state="down")
 
     assert np.isclose(metric, expected, atol=ATOL)
 
 
 @pytest.mark.parametrize(
-    ("L", "J", "correlations", "correlations_errors", "expected_mean", "expected_err"),
+    ("L", "correlations", "correlations_errors", "expected_mean", "expected_err"),
     [
-        (5, J_75, correlations["szsz_c"], correlations["szsz_c_err"], 0.255, 0.038),
-        (5, J_75, theory_correlations, {(0, 1): 0.0, (0, 2): 0.0}, 0.0, 0.0),
+        (5, correlations["szsz_c"], correlations["szsz_c_err"], 0.255, 0.038),
+        (5, theory_correlations, {(0, 1): 0.0, (0, 2): 0.0}, 0.0, 0.0),
     ],
 )
 def test_compute_metric_qutip_with_err(
-    L, J, correlations, correlations_errors, expected_mean, expected_err
+    L, correlations, correlations_errors, expected_mean, expected_err
 ):
     metric, metric_err = metric_from_correlations(
-        correlations, correlations_errors, J=J, L=L, state="down"
+        correlations, correlations_errors, L=L, state="down"
     )
 
     assert np.isclose(metric, expected_mean, atol=ATOL)
@@ -91,7 +91,7 @@ def test_compute_metric_qutip_with_err(
 
 
 def test_metric_from_bitstring():
-    metric, metric_err = metric_from_bitstring(samples, J=J_75, L=L, state="down")
+    metric, metric_err = metric_from_bitstring(samples, L=L, state="down")
 
     assert np.isclose(metric, 0.255, atol=ATOL)
     assert np.isclose(metric_err, 0.038, atol=ATOL)
@@ -109,7 +109,7 @@ def test_compute_metric(data, expected):
     Test compute_metric correctly dispatches based on input type.
     """
 
-    res = compute_metric(data, J=J_75, L=L, state="down")
+    res = compute_metric(data, L=L, state="down")
 
     if isinstance(res, tuple):
         res = res[0]
@@ -122,7 +122,7 @@ def test_compute_metric_invalid_type():
     """
 
     with pytest.raises(ValueError, match="Invalid data type"):
-        compute_metric({1: 2}, J=J_75, L=L, state="down")
+        compute_metric({1: 2}, L=L, state="down")
 
 
 def test_metric_from_correlations_missing_pairs():
@@ -131,7 +131,7 @@ def test_metric_from_correlations_missing_pairs():
     """
 
     with pytest.raises(ValueError, match="Correlations are not defined"):
-        metric_from_correlations({(0, 1): 0.1}, J=J_75, L=5, state="down")
+        metric_from_correlations({(0, 1): 0.1}, L=5, state="down")
 
 
 def test_metric_from_correlations_invalid_method():
@@ -141,5 +141,5 @@ def test_metric_from_correlations_invalid_method():
 
     with pytest.raises(ValueError, match="Method invalid is not implemented"):
         metric_from_correlations(
-            theory_correlations, J=J_75, L=5, state="down", method="invalid"
+            theory_correlations, L=5, state="down", method="invalid"
         )

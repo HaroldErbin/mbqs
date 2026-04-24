@@ -140,9 +140,7 @@ def compute_score(
     for L, corr in data.items():
         corr_errors = data_errors[L] if data_errors is not None else None
 
-        results = compute_metric(
-            corr, corr_errors, J=J, state=state, L=L, method=method
-        )
+        results = compute_metric(corr, corr_errors, state=state, L=L, method=method)
         if isinstance(results, float):
             metric = results
             metric_err = 0.0
@@ -346,7 +344,6 @@ class MBQS:
         result = compute_metric(
             self.correlations,
             self.correlations_errors,
-            J=self.J,
             state=self.state,
             L=cast(int, self.L),
             method=method,
