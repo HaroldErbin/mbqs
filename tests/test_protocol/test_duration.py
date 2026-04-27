@@ -4,9 +4,10 @@ import pytest
 from mbqs.protocol.duration import Duration
 from mbqs.simulations.state import State
 
+ATOL = 1e-3
 # J for a = 7.5
 J_75 = 1.2160498936625515
-ATOL = 1e-3
+surge_time_L5 = 1.2346804253877441
 
 
 @pytest.mark.parametrize(
@@ -23,8 +24,15 @@ def test_duration_init(L, J):
 
 
 def test_duration_properties_surge_time():
-    duration = Duration(L=6, J=J_75)
-    assert np.isclose(duration.surge_time(), 1.4, atol=ATOL)
+    duration = Duration(L=5, J=J_75)
+    assert np.isclose(duration.surge_time(), surge_time_L5, atol=ATOL)
+
+
+def test_duration_properties_surge_time_rounded():
+    duration = Duration(L=5, J=J_75)
+    assert np.isclose(
+        duration.surge_time(rounding=True), round(surge_time_L5, 3), atol=ATOL
+    )
 
 
 def test_duration_properties_lieb_robinson_time():

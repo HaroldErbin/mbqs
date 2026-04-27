@@ -59,6 +59,7 @@ def get_first_peak_time(
     _, c1, c2 = coeffs
 
     if c2 < 0:
+        # check that the interpolation gives a maximum
         interp_peak_time = -c1 / (2 * c2)
         if times_window[0] <= interp_peak_time <= times_window[-1]:
             return float(interp_peak_time)

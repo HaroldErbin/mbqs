@@ -1,5 +1,6 @@
 import numpy as np
 import pytest
+from numpy.typing import NDArray
 
 from mbqs.simulations.time_analysis import get_first_peak_time
 
@@ -49,3 +50,26 @@ def test_get_first_peak_time_noisy():
 
     # should be close to 5.0 despite noise
     assert peak_time == pytest.approx(5.0, abs=0.05)
+
+
+@pytest.mark.parametrize(
+    ("times", "values"),
+    [
+        # Case: len(times_window) < 3
+        (np.array([0.0, 1.0]), np.array([0.0, 1.0])),
+        # Case: c2 >= 0
+        (np.array([0.0, 1.0, 2.0, 3.0, 4.0]), np.array([0.0, 1.0, 4.0, 9.0, 16.0])),
+        # Case: interp_peak_time outside window
+        (np.array([0.0, 1.0, 2.0, 3.0, 4.0]), np.array([0.0, 1.0, 2.0, 3.0, 4.1])),
+    ],
+)
+def test_get_first_peak_time_edge_cases(times: NDArray, values: NDArray):
+    """
+    Test edge cases for peak detection.
+    """
+
+    peak_time_no_interp = get_first_peak_time(times, values, interpolate=False)
+    peak_time_interp = get_first_peak_time(times, values, interpolate=True)
+
+    # In these edge cases, interpolation should fallback to the discrete peak
+    assert peak_time_interp == peak_time_no_interp
