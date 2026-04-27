@@ -174,5 +174,4 @@ def get_surge_time(
     else:
         surge_time = get_first_peak_time(times, obs["szsz_c"], interpolate=interpolate)
 
-    print(surge_time)
     return surge_time / J
