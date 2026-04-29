@@ -20,7 +20,7 @@ This can be used to provide a window where to restrict the time evolution for
 efficiency.
 """
 
-from mbqs.simulations import ising_qutip
+from mbqs.simulations import ising_qutip, ising_tabulated
 from mbqs.simulations.lieb_robinson import compute_lieb_robinson_time
 from mbqs.simulations.state import State
 
@@ -82,8 +82,18 @@ class Duration:
 
         return self.compute_surge_time(self.L, self.J, self.state, method="fermions")
 
+    @property
+    def tabulated_surge_time(self) -> float:
+        """
+        Surge time using free fermions.
+        """
+
+        return self.compute_surge_time(self.L, self.J, self.state, method="tabulated")
+
     @staticmethod
-    def compute_surge_time(L: int, J: float, state=State.down, method="qutip") -> float:
+    def compute_surge_time(
+        L: int, J: float, state=State.down, method="tabulated"
+    ) -> float:
         """
         Compute the surge time.
         """
@@ -95,6 +105,13 @@ class Duration:
                 surge_time = ising_qutip.get_surge_time(L=L, J=J, state=state)
             case "lieb_robinson":
                 surge_time = compute_lieb_robinson_time(L, J)
+            case "tabulated":
+                try:
+                    surge_time = ising_tabulated.get_surge_time(L=L, J=J, state=state)
+                except KeyError:
+                    surge_time = Duration.compute_surge_time(
+                        L=L, J=J, state=state, method="fermions"
+                    )
             case _:
                 raise ValueError(f"Unknown method to compute surge time: {method}")
 

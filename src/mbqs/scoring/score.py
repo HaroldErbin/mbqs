@@ -9,7 +9,7 @@ from typing import Any, cast, overload
 import numpy as np
 from numpy.typing import NDArray
 
-from mbqs.correlations import SampleCorrelations
+from mbqs.correlations.samples import SampleCorrelations
 from mbqs.protocol.data_utils import find_data_type, find_protocol_parameters
 from mbqs.simulations.state import State, StateType
 from mbqs.types import BitstringMap, Corr2ptMap
@@ -92,7 +92,7 @@ def compute_score(
     J: float,
     state: StateType = State.down,
     threshold: float = 0.1,
-    method: str = "qutip",
+    method: str = "tabulated",
     stop_on_fail: bool = False,
 ) -> tuple[int, dict[int, Any]]: ...
 
@@ -105,7 +105,7 @@ def compute_score(
     J: float,
     state: StateType = State.down,
     threshold: Sequence[float],
-    method: str = "qutip",
+    method: str = "tabulated",
     stop_on_fail: bool = False,
 ) -> tuple[dict[float, int], dict[int, Any]]: ...
 
@@ -117,7 +117,7 @@ def compute_score(
     J,
     state=State.down,
     threshold=0.1,
-    method="qutip",
+    method="tabulated",
     stop_on_fail=False,
 ):
     """

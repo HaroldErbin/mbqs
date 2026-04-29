@@ -4,20 +4,17 @@ Action to compute correlation functions from bitstrings.
 
 import json
 import os
-from typing import cast
 
-from mbqs import RydbergMapping
-from mbqs.cli.arguments import ARGS_DEFAULT
-from mbqs.correlations import SampleCorrelations, SurgeCorrelations
+from mbqs import SampleCorrelations, SurgeCorrelations
 from mbqs.json_utils import json_encode_keys
 
 
-def _display_corr(corr, is_theory=False):
+def _display_corr(results, is_theory=False):
     """
     Display correlation functions.
 
     Args:
-        corr: Dictionary containing the correlation functions.
+        results: Dictionary containing the parameters and correlation functions.
         is_theory: Whether the correlations have been computed using a simulation.
 
     Returns:
@@ -29,6 +26,17 @@ def _display_corr(corr, is_theory=False):
     if is_theory is True:
         text += " (theory)"
     text += "\n\n"
+
+    text += "## Parameters\n"
+    text += f"- L = {results['L']}\n"
+
+    if is_theory is True:
+        text += f"- State = {results['state']}\n"
+        text += f"- Jt = {results['Jt']}\n"
+
+    text += "\n## Values\n"
+
+    corr = results["correlations"]
 
     for key, values in corr.items():
         if key.endswith("_err"):
@@ -60,7 +68,12 @@ def compute_correlations_from_samples(args):
     with open(args.input) as f:
         samples_corr = SampleCorrelations(json.load(f))
 
-    return samples_corr.correlations
+    results = {
+        "L": samples_corr.L,
+        "correlations": samples_corr.correlations,
+    }
+
+    return results
 
 
 def compute_exact_correlations(args):
@@ -70,22 +83,12 @@ def compute_exact_correlations(args):
 
     L = args.L
 
-    if args.J is None and args.a is None:
-        args.J = cast(float, ARGS_DEFAULT["J"])
-
-    if args.a is not None:
-        level = args.level if args.level is not None else ARGS_DEFAULT["level"]
-        level = cast(int, level)
-        J = RydbergMapping.compute_J(args.a, level)
-    else:
-        J = args.J
-
-    corr = SurgeCorrelations(J=J, state=args.state, L=L)
+    corr = SurgeCorrelations(state=args.state, L=L)
 
     results = {
-        "J": J,
         "state": args.state,
         "L": L,
+        "Jt": corr.surge_time_J,
         "correlations": corr.correlations,
     }
 
@@ -119,12 +122,7 @@ def correlations_action(args) -> int:
         is_theory = True
 
     if display_on_cli is True:
-        if "correlations" in results:
-            corr = results["correlations"]
-        else:
-            corr = results
-
-        print(_display_corr(corr, is_theory))
+        print(_display_corr(results, is_theory))
 
     if args.output is not None:
         with open(args.output, "w") as f:

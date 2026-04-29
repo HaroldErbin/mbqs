@@ -6,8 +6,8 @@ from typing import overload
 
 import numpy as np
 
-from mbqs.correlations import SampleCorrelations
-from mbqs.simulations import ising_qutip
+from mbqs.correlations.samples import SampleCorrelations
+from mbqs.simulations import ising_qutip, ising_tabulated
 from mbqs.simulations.lattice import get_antipodal_idx
 from mbqs.simulations.state import State, StateType
 from mbqs.types import BitstringMap, Corr2ptMap, Metric
@@ -19,7 +19,7 @@ def compute_metric(
     *,
     state: StateType = State.down,
     L: int,
-    method: str = "qutip",
+    method: str = "tabulated",
 ):
     """
     Compute the MBQS metric from correlations or bitstrings.
@@ -42,7 +42,7 @@ def metric_from_correlations(
     *,
     state: StateType,
     L: int,
-    method: str = "qutip",
+    method: str = "tabulated",
 ) -> Metric: ...
 
 
@@ -53,7 +53,7 @@ def metric_from_correlations(
     *,
     state: StateType,
     L: int,
-    method: str = "qutip",
+    method: str = "tabulated",
 ) -> tuple[Metric, Metric]: ...
 
 
@@ -63,7 +63,7 @@ def metric_from_correlations(
     *,
     state=State.down,
     L,
-    method="qutip",
+    method="tabulated",
 ):
     """
     Compute the MBQS metric from correlation functions.
@@ -90,13 +90,27 @@ def metric_from_correlations(
                 duration=duration,
                 antipodal_only=False,
             )
+            theory_values = np.array(
+                list(
+                    theory_correlations[f"szsz_c_{i}"]
+                    for i in range(1, antipodal_idx + 1)
+                )
+            )
+        case "tabulated":
+            theory_correlations = ising_tabulated.get_correlations(
+                state=state,
+                L=L,
+            )
+            theory_values = np.array(
+                [
+                    theory_correlations["szsz_c"][(0, i)]
+                    for i in range(1, antipodal_idx + 1)
+                ]
+            )
 
         case _:
             raise ValueError(f"Method {method} is not implemented.")
 
-    theory_values = np.array(
-        list(theory_correlations[f"szsz_c_{i}"][1] for i in range(1, antipodal_idx + 1))
-    )
     sample_values = np.array(
         [correlations[(0, i)] for i in range(1, antipodal_idx + 1)]
     )

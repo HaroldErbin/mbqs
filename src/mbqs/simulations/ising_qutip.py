@@ -1,11 +1,12 @@
 """
-Simulations for the protocol using the Ising Hamiltonian.
+Results for the MBQS protocol using qutip simulations.
 """
 
 import numpy as np
 import qutip
 from qutip import Qobj, basis, sesolve, tensor
 
+from mbqs.correlations.utils import convert_2pt_dict
 from mbqs.simulations.time_analysis import get_first_peak_time
 
 from .lattice import get_antipodal_idx
@@ -135,19 +136,20 @@ def make_quench(
 
     results = sesolve(H, psi, times, e_ops=ops)
 
-    obs = {key: np.array(values) for key, values in results.e_data.items()}
+    obs = {key: np.array(values)[1:] for key, values in results.e_data.items()}
 
     obs.update(
         {
             key.replace("szsz", "szsz_c"): (
-                np.array(results.e_data[key]) - np.array(results.e_data["sz"]) ** 2
+                np.array(results.e_data[key])[1:]
+                - np.array(results.e_data["sz"])[1:] ** 2
             )
             for key in ops.keys()
             if key.startswith("szsz")
         }
     )
 
-    return times, obs
+    return times[1:], obs
 
 
 def get_surge_time(
@@ -175,3 +177,20 @@ def get_surge_time(
         surge_time = get_first_peak_time(times, obs["szsz_c"], interpolate=interpolate)
 
     return surge_time / J
+
+
+def get_correlations(*, L, state=State.down, surge_time=None):
+    """
+    Compute the surge correlations for the Ising Hamiltonian.
+    """
+
+    if surge_time is None:
+        surge_time = get_surge_time(L=L, state=state)
+
+    quench_results = make_quench(
+        state=state,
+        L=L,
+        duration=surge_time,
+        antipodal_only=False,
+    )
+    return convert_2pt_dict({k: v[-1] for k, v in quench_results[1].items()})

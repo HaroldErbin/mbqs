@@ -61,6 +61,27 @@ function has a large plateau).
 
 ## Usage
 
+We provide the computations of the surge time and correlation functions at that time
+using three different methods:
+1. Exact simulation with qutip (for $L \lesssim 20$ on a laptop).
+2. Exact solution with free fermions (for any $L$; **not yet implemented**).
+3. Tabulated data from free fermions (for $L \le 50$).
+
+The qutip method is provided as a way to check the results for low L but it is
+not scalable to large systems. The free fermions method is exact and can be used
+for any $L$. The tabulated data method is taken from the free fermions: for larger $L$,
+it falls back to free fermions.
+
+We also provide utilities to map the critical Ising model on a neutral atom QPU.
+
+
+### As a Python package
+
+You can use `mbqs` as a package. The most important classes are available as top-level
+imports: `MBQS`, `MBQSProtocol`, `RydbergMapping`. You can check the unit tests and CLI
+actions to find how to use them.
+
+
 ### Command-line interface
 
 - Display in console the parameters needed to run the protocol for a given system size:

@@ -24,25 +24,44 @@ def test_duration_init(L, J):
 
 
 def test_duration_properties_surge_time():
-    duration = Duration(L=5, J=J_75)
+    duration = Duration(L=5, J=J_75, state=State.down)
     assert np.isclose(duration.surge_time(), surge_time_L5, atol=ATOL)
 
 
 def test_duration_properties_surge_time_rounded():
-    duration = Duration(L=5, J=J_75)
+    duration = Duration(L=5, J=J_75, state=State.down)
     assert np.isclose(
         duration.surge_time(rounding=True), round(surge_time_L5, 3), atol=ATOL
     )
 
 
 def test_duration_properties_lieb_robinson_time():
-    duration = Duration(L=6, J=J_75)
-    assert np.isclose(duration.lieb_robinson_time, 6 / (4 * J_75), atol=ATOL)
+    duration = Duration(L=5, J=J_75)
+    assert np.isclose(duration.lieb_robinson_time, 5 / (4 * J_75), atol=ATOL)
 
 
 def test_duration_properties_qutip_surge_time():
-    duration = Duration(L=6, J=J_75)
-    assert np.isclose(duration.qutip_surge_time, 1.4, atol=ATOL)
+    duration = Duration(L=5, J=J_75)
+    assert np.isclose(duration.qutip_surge_time, surge_time_L5, atol=ATOL)
+
+
+def test_duration_properties_tabulated_surge_time():
+    duration = Duration(L=5, J=J_75, state=State.down)
+    assert np.isclose(duration.tabulated_surge_time, surge_time_L5, atol=ATOL)
+
+
+@pytest.mark.xfail(reason="Not implemented yet")
+def test_duration_properties_fermions_surge_time():
+    assert np.isclose(
+        Duration(L=6, J=J_75).fermions_surge_time, surge_time_L5, atol=ATOL
+    )
+
+
+def test_compute_surge_time_tabulated():
+    result = Duration.compute_surge_time(
+        L=5, J=J_75, state=State.down, method="tabulated"
+    )
+    assert np.isclose(result, surge_time_L5, atol=ATOL)
 
 
 def test_compute_surge_time_invalid_method():
@@ -50,9 +69,11 @@ def test_compute_surge_time_invalid_method():
         Duration.compute_surge_time(L=3, J=J_75, method="invalid")
 
 
-@pytest.mark.xfail(reason="Not implemented yet")
-def test_duration_properties_fermions_surge_time():
-    assert np.isclose(Duration(L=6, J=J_75).fermions_surge_time, 1.4, atol=ATOL)
+@pytest.mark.xfail(reason="NotImplementedError raised when tabulated data not found")
+def test_compute_surge_time_tabulated_keyerror_fallback():
+    # L=1 is not in tabulated data (because invalid), should fallback to fermions
+    # TODO: update later when fermions method is implemented
+    Duration.compute_surge_time(L=1, J=1.0, state=State.down, method="tabulated")
 
 
 @pytest.mark.parametrize(
