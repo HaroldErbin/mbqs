@@ -27,14 +27,14 @@ def _display_corr(results, is_theory=False):
         text += " (theory)"
     text += "\n\n"
 
-    text += "## Parameters\n"
+    text += "## Parameters\n\n"
     text += f"- L = {results['L']}\n"
 
     if is_theory is True:
         text += f"- State = {results['state']}\n"
         text += f"- Jt = {results['Jt']}\n"
 
-    text += "\n## Values\n"
+    text += "\n## Values\n\n"
 
     corr = results["correlations"]
 

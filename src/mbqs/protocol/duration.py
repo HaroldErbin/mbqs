@@ -45,7 +45,7 @@ class Duration:
         self.J = J
         self.state = state
 
-    def surge_time(self, method: str = "qutip", rounding=False) -> float:
+    def surge_time(self, method: str = "tabulated", rounding=False) -> float:
         """
         Compute the surge time.
         """

@@ -17,7 +17,7 @@ class SurgeCorrelations:
         *,
         state: StateType = State.down,
         L: int,
-        method: str = "qutip",
+        method: str = "tabulated",
     ):
         """
         Initialize the SurgeCorrelations class.

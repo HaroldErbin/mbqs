@@ -64,7 +64,7 @@ def test_surge_correlations_default() -> None:
 
     sc = SurgeCorrelations(L=2)
     assert sc.state == State.down
-    assert sc.method == "qutip"
+    assert sc.method == "tabulated"
 
 
 @pytest.mark.xfail(reason="Not implemented yet")
