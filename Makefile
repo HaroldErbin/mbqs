@@ -4,6 +4,9 @@ install-dev:
 	uv sync --extra dev
 	pre-commit install
 
+install-examples:
+	uv sync --extra examples
+
 check:
 	ruff check .
 

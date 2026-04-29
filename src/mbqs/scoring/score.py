@@ -149,10 +149,15 @@ def compute_score(
 
         success = compute_test_success(metric, metric_err, threshold=threshold)
 
-        history[L] = {
-            "metric": metric,
-            "success": success[threshold[0]] if len(threshold) == 1 else success,
-        }
+        history[L] = {"metric": metric}
+
+        if metric_err > 0:
+            history[L]["metric_err"] = metric_err
+
+        if len(threshold) == 1:
+            history[L]["success"] = success[threshold[0]]
+        else:
+            history[L]["success"] = success
 
         for t, succ in success.items():
             if succ in (TestSuccess.FAILED, TestSuccess.UNDECIDED):
@@ -303,7 +308,9 @@ class MBQS:
 
             self.L = int(L)
 
-    def compute_score(self, method: str = "qutip", stop_on_fail: bool = False) -> None:
+    def compute_score(
+        self, method: str = "tabulated", stop_on_fail: bool = False
+    ) -> tuple[int | dict[float, int], dict[int, Any]]:
         """
         Compute the MBQS score.
         """
@@ -328,7 +335,15 @@ class MBQS:
             stop_on_fail=stop_on_fail,
         )
 
-    def compute_metric(self, method: str = "qutip") -> None:
+        return self.score, self.history
+
+    def compute_metric(
+        self, method: str = "tabulated"
+    ) -> (
+        tuple[float, TestSuccess | dict[float, TestSuccess]]
+        | tuple[float, float, TestSuccess | dict[float, TestSuccess]]
+        | None
+    ):
         """
         Compute the MBQS metric.
         """
@@ -350,16 +365,25 @@ class MBQS:
         )
 
         if isinstance(result, tuple):
-            self.metric, self.metric_err = result
+            metric, metric_err = result
         else:
-            self.metric = result
-            self.metric_err = 0.0
+            metric = result
+            metric_err = 0.0
 
-        self.success = compute_test_success(
-            self.metric,
-            self.metric_err,
+        self.metric = metric
+        self.metric_err = metric_err
+
+        success = compute_test_success(
+            metric,
+            metric_err,
             threshold=self.threshold,
         )
+        self.success = success
+
+        if metric_err > 0:
+            return metric, metric_err, success
+
+        return metric, success
 
     def summary(self) -> dict[str, Any]:
         """

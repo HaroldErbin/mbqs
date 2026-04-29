@@ -41,5 +41,6 @@ def test_protocol_summary():
         "L": 6,
         "J": 1.0,
         "time": protocol.surge_time,
+        "Jt": protocol.J * protocol.surge_time,
         "corr_idx": [(0, 1), (0, 2), (0, 3)],
     }

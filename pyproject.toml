@@ -51,6 +51,8 @@ dev = [
     "ty",
 ]
 
+examples = ["emu-mps", "ipykernel"]
+
 
 [tool.ruff]
 
@@ -76,6 +78,7 @@ fixable = ["ALL"]
 
 # authorize assertion and * import in tests
 "tests/*" = ["D", "S101", "F403"]
+"*.ipynb" = ["D"]
 
 
 [tool.ty.environment]
