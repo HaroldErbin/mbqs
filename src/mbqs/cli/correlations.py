@@ -32,7 +32,7 @@ def _display_corr(results, is_theory=False):
 
     if is_theory is True:
         text += f"- State = {results['state']}\n"
-        text += f"- Jt = {results['Jt']}\n"
+        text += f"- Jt = {results['Jt']:.4g}\n"
 
     text += "\n## Values\n\n"
 

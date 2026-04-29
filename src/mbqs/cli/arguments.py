@@ -42,9 +42,30 @@ def arg_parser():
     return parser
 
 
-def physical_arguments(parser, required=True, single_L=False):
+def global_arguments(parser):
     """
-    Add physical arguments to the parser.
+    Set up the global arguments.
+    """
+
+    control_group = parser.add_argument_group("Control")
+
+    control_group.add_argument(
+        "-v",
+        "--verbose",
+        action="store_true",
+        default=ARGS_DEFAULT["verbose"],
+        help=f"""
+        Display more information in the console.
+        Default: {ARGS_DEFAULT["verbose"]}
+        """,
+    )
+
+    return parser
+
+
+def state_argument(parser):
+    """
+    Add state argument to the parser.
     """
 
     parser.add_argument(
@@ -58,6 +79,44 @@ def physical_arguments(parser, required=True, single_L=False):
         Default: {ARGS_DEFAULT["state"]}
         """,
     )
+
+    return parser
+
+
+def L_argument(parser, required=True, single_L=False):
+    """
+    Add L argument to the parser.
+    """
+
+    if single_L:
+        parser.add_argument(
+            "-L",
+            type=int,
+            required=required,
+            help="""
+            System size: number of qubits.
+            Default: None.
+            """,
+        )
+    else:
+        parser.add_argument(
+            "-L",
+            type=int,
+            nargs="+",
+            required=required,
+            help="""
+            System size(s): number(s) of qubits.
+            Can be a single number or a list.
+            """,
+        )
+
+    return parser
+
+
+def coupling_arguments(parser):
+    """
+    Add coupling arguments to the parser.
+    """
 
     group = parser.add_mutually_exclusive_group()
 
@@ -87,32 +146,10 @@ def physical_arguments(parser, required=True, single_L=False):
         type=int,
         default=None,
         help=f"""
-        Rydberg level.
+        Rydberg level (used only if -a or --include-rydberg is used).
         Default: {ARGS_DEFAULT["level"]}
         """,
     )
-
-    if single_L:
-        parser.add_argument(
-            "-L",
-            type=int,
-            required=required,
-            help="""
-            System size: number of qubits.
-            Default: None.
-            """,
-        )
-    else:
-        parser.add_argument(
-            "-L",
-            type=int,
-            nargs="+",
-            required=required,
-            help="""
-            System size(s): number(s) of qubits.
-            Can be a single number or a list.
-            """,
-        )
 
     return parser
 
@@ -168,6 +205,10 @@ def protocol_arg_parser(subparsers, parents):
         parents=parents + [arg_parser],
     )
 
+    state_argument(parser)
+    L_argument(parser, required=False, single_L=False)
+    coupling_arguments(parser)
+
     parser.add_argument(
         "--include-rydberg",
         action="store_true",
@@ -178,7 +219,6 @@ def protocol_arg_parser(subparsers, parents):
         """,
     )
 
-    physical_arguments(parser)
     input_output_arguments(parser, remove_input=True)
 
     return parser
@@ -202,7 +242,8 @@ def correlations_arg_parser(subparsers, parents):
         parents=parents + [arg_parser],
     )
 
-    physical_arguments(parser, required=False, single_L=True)
+    state_argument(parser)
+    L_argument(parser, required=False, single_L=True)
     input_output_arguments(parser)
 
     return parser
@@ -233,28 +274,8 @@ def scorer_arg_parser(subparsers, parents):
         """,
     )
 
-    physical_arguments(parser, required=False, single_L=True)
+    state_argument(parser)
+    L_argument(parser, required=False, single_L=True)
     input_output_arguments(parser, input_required=True)
-
-    return parser
-
-
-def global_arguments(parser):
-    """
-    Set up the global arguments.
-    """
-
-    control_group = parser.add_argument_group("Control")
-
-    control_group.add_argument(
-        "-v",
-        "--verbose",
-        action="store_true",
-        default=ARGS_DEFAULT["verbose"],
-        help=f"""
-        Display more information in the console.
-        Default: {ARGS_DEFAULT["verbose"]}
-        """,
-    )
 
     return parser

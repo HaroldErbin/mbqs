@@ -19,7 +19,8 @@ protocol_text = [
 
 size_text = [
     "L = {L}",
-    "Time = {time:.4g} µs",
+    "Surge time = {time:.4g} µs",
+    "Jt = {Jt:.4g}",
     "Correlation indices: {corr_idx}",
 ]
 
@@ -39,7 +40,7 @@ def join_with_prefix(text_list: list[str], prefix: str) -> str:
     Join a list of strings with a prefix for each item.
     """
 
-    return "\n".join([prefix + text for text in text_list])
+    return "\n".join([prefix + text for text in text_list if text != ""])
 
 
 def combine_text(protocol_data: dict) -> str:
@@ -132,6 +133,7 @@ def protocol_action(args):
             "L": L,
             "time": definition_data["time"],
             "corr_idx": definition_data["corr_idx"],
+            "Jt": definition_data["Jt"],
         }
 
         if args.a is not None:

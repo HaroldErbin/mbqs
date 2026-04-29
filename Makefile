@@ -26,4 +26,4 @@ examples:
 	mbqs protocol -J 1. -L 4 --include-rydberg -o examples/protocol_single_rydberg.json
 	mbqs protocol -J 1. -L $(shell seq 4 6) --include-rydberg -o examples/protocol_multiple_rydberg.json
 	mbqs correlations -i examples/samples.json -o examples/correlations_samples.json
-	mbqs correlations -J 1. -L 4 -o examples/correlations_exact.json
+	mbqs correlations -L 4 -o examples/correlations_exact.json

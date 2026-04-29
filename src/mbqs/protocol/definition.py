@@ -82,5 +82,6 @@ class MBQSProtocol:
             "L": self.L,
             "J": self.J,
             "time": self.surge_time,
+            "Jt": self.J * self.surge_time,
             "corr_idx": self.corr_idx,
         }

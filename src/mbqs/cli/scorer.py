@@ -10,8 +10,8 @@ from mbqs import MBQS
 from mbqs.json_utils import json_decode_keys
 
 protocol_text = [
-    "J = {J:.4g} rad / µs",
     "State = {state}",
+    "Jt = {J:.4g}",
     "Threshold = {threshold}",
 ]
 
@@ -35,10 +35,10 @@ def _display_text(data):
         text = "# MBQS score\n\n"
         text += "\n".join(protocol_text).format(**data)
         text += f"\n\n*{score_text.format(**data)}*"
-        text += "\n\n## History\n"
+        text += "\n\n## History\n\n"
 
         for L, dic in data["history"].items():
-            text += f"## L = {L}\n"
+            text += f"L = {L}\n"
             text += f"- {_metric_text(**dic)}\n"
             text += f"- {success_text.format(**dic)}\n"
             text += "\n"
@@ -66,8 +66,6 @@ def scorer_action(args):
         data = json_decode_keys(data)
 
     parameters = {}
-    if args.J is not None:
-        parameters["J"] = args.J
     if args.state is not None:
         parameters["state"] = args.state
     if args.L is not None:
