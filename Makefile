@@ -1,4 +1,4 @@
-.PHONY: install-dev, check, format, test, examples
+.PHONY: install-dev, install-examples, check, format, test, examples
 
 install-dev:
 	uv sync --extra dev

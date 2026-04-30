@@ -1,7 +1,7 @@
 [project]
 
 name = "mbqs"
-version = "0.1.0"
+version = "1.0-beta"
 description = "Many-body quantum score."
 readme = "README.md"
 requires-python = "~=3.12.0"
@@ -25,7 +25,7 @@ dependencies = ["argcomplete", "numpy", "pulser", "scipy"]
 
 [project.urls]
 
-Homepage = "https://github.com/ManyBodyQuantumScore/mbqs"
+Homepage = "https://github.com/HaroldErbin/mbqs"
 
 
 [project.scripts]
