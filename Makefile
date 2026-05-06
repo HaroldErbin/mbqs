@@ -1,11 +1,8 @@
-.PHONY: install-dev, install-examples, check, format, test, examples
+.PHONY: build, check, format, install-dev, install-examples, test, examples
 
-install-dev:
-	uv sync --extra dev
-	pre-commit install
-
-install-examples:
-	uv sync --extra examples
+build:
+	uv pip install -U build
+	uv build
 
 check:
 	ruff check .
@@ -19,6 +16,13 @@ check:
 format:
 	ruff check --fix .
 	ruff format .
+
+install-dev:
+	uv sync --extra dev --extra examples
+	pre-commit install
+
+install-examples:
+	uv sync --extra examples
 
 test:
 	pytest
